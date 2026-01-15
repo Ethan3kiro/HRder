@@ -624,23 +624,30 @@ class DataEntryWidget(QWidget):
     
     def enter_fullscreen_mode(self):
         """进入全屏数据录入模式"""
-        from .fullscreen_data_entry import FullscreenDataEntryWindow
-        
-        # 创建全屏窗口
-        self.fullscreen_window = FullscreenDataEntryWindow(
-            database=self.database,
-            device_manager=self.device_manager,
-            settings_manager=self.settings_manager,
-            image_path=self.current_image_path,  # 传递当前图像路径
-            dl_ocr_extractor=self.dl_ocr_extractor,  # 传递深度学习提取器
-            parent=self
-        )
-        
-        # 连接关闭信号，在全屏窗口关闭后刷新主窗口
-        self.fullscreen_window.closed.connect(self.on_fullscreen_closed)
-        
-        # 显示全屏窗口
-        self.fullscreen_window.show()
+        try:
+            from .fullscreen_data_entry import FullscreenDataEntryWindow
+            
+            # 创建全屏窗口
+            self.fullscreen_window = FullscreenDataEntryWindow(
+                database=self.database,
+                device_manager=self.device_manager,
+                settings_manager=self.settings_manager,
+                image_path=self.current_image_path,  # 传递当前图像路径
+                dl_ocr_extractor=self.dl_ocr_extractor,  # 传递深度学习提取器
+                parent=self
+            )
+            
+            # 连接关闭信号，在全屏窗口关闭后刷新主窗口
+            self.fullscreen_window.closed.connect(self.on_fullscreen_closed)
+            
+            # 显示全屏窗口
+            self.fullscreen_window.show()
+            
+        except Exception as e:
+            import traceback
+            error_msg = f"进入全屏模式失败：{str(e)}\n\n详细信息：\n{traceback.format_exc()}"
+            QMessageBox.critical(self, "错误", error_msg)
+            print(error_msg)  # 同时打印到控制台
     
     def on_fullscreen_closed(self):
         """全屏窗口关闭后的处理"""

@@ -23,6 +23,8 @@ class FullscreenDataEntryWindow(QWidget):
     def __init__(self, database, device_manager, settings_manager, 
                  image_path=None, dl_ocr_extractor=None, parent=None):
         super().__init__(parent)
+        
+        # 初始化所有属性
         self.dl_ocr_extractor = dl_ocr_extractor
         self.database = database
         self.device_manager = device_manager
@@ -32,16 +34,52 @@ class FullscreenDataEntryWindow(QWidget):
         self.ocr_worker = None
         self.current_image_path = image_path
         
-        self.init_ui()
+        # 初始化UI组件引用（避免在init_ui之前访问）
+        self.file_path_edit = None
+        self.image_label = None
+        self.assist_result_label = None
+        self.data_table = None
+        self.device_combo = None
+        self.month_edit = None
+        self.save_btn = None
+        self.progress_bar = None
+        self.assist_btn = None
+        self.manual_btn = None
         
-        # 如果提供了图像路径，自动加载
-        if image_path:
-            self.load_image_preview(image_path)
+        try:
+            self.init_ui()
+            
+            # 如果提供了图像路径，自动加载
+            if image_path:
+                self.load_image_preview(image_path)
+                
+        except Exception as e:
+            import traceback
+            error_msg = f"初始化全屏窗口失败：{str(e)}\n\n详细信息：\n{traceback.format_exc()}"
+            print(error_msg)
+            # 显示错误对话框
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "初始化错误", error_msg)
+            raise  # 重新抛出异常，让调用者知道初始化失败
     
     def init_ui(self):
         """初始化 UI"""
         self.setWindowTitle("数据录入 - 全屏模式")
+        
+        # Windows兼容性：使用普通窗口而不是真正的全屏
+        # 设置窗口标志，确保在Windows上正常显示
+        from PyQt6.QtCore import Qt
+        self.setWindowFlags(
+            Qt.WindowType.Window |  # 普通窗口
+            Qt.WindowType.WindowMaximizeButtonHint |  # 最大化按钮
+            Qt.WindowType.WindowCloseButtonHint  # 关闭按钮
+        )
+        
+        # 设置窗口大小和位置
         self.setGeometry(50, 50, 1400, 900)
+        
+        # 可选：启动时最大化窗口（而不是全屏）
+        # self.showMaximized()
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -183,25 +221,23 @@ class FullscreenDataEntryWindow(QWidget):
         self.data_table.setColumnCount(3)
         self.data_table.setHorizontalHeaderLabels(["数据项名称", "数值", "单位"])
         
-        # 设置表格固定高度，确保滚动条始终在可见区域内
-        self.data_table.setFixedHeight(650)  # 固定高度，确保滚动条可见
+        # Windows兼容性：使用更保守的高度设置
+        # 不使用固定高度，让表格自适应
+        self.data_table.setMinimumHeight(600)
         
-        # 强制显示水平滚动条
-        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # 滚动条策略
+        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         
-        # 设置列宽 - 使用更小的固定宽度
+        # 设置列宽
         header = self.data_table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)  # 数据项名称固定
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)  # 数值列固定
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)  # 单位列固定
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)  # 数据项名称自适应
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)    # 数值列固定
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)    # 单位列固定
         
-        # 设置具体宽度 - 确保三列都能在可见区域内
-        self.data_table.setColumnWidth(0, 180)  # 数据项名称：180px
-        self.data_table.setColumnWidth(1, 120)  # 数值：120px（加宽以便输入）
+        # 设置具体宽度
+        self.data_table.setColumnWidth(1, 120)  # 数值：120px
         self.data_table.setColumnWidth(2, 60)   # 单位：60px
-        
-        # 总宽度：360px，应该能在右侧面板中完整显示
         
         layout.addWidget(self.data_table)
         
@@ -369,75 +405,87 @@ class FullscreenDataEntryWindow(QWidget):
     
     def display_data_with_template(self, assisted_data):
         """显示完整的数据模板，并填充辅助识别的数据"""
-        # 定义所有 71 个数据项
-        all_items = []
-        
-        # COMBINER ISO TEMPERATURES (7 项)
-        combiner_items = ['AZ', 'BZ', 'CZ', 'DZ', 'AB', 'CD', 'ABCD']
-        for item_name in combiner_items:
-            all_items.append({
-                'item_name': item_name,
-                'value': '',
-                'unit': '°C',
-                'category': 'COMBINER'
-            })
-        
-        # Z-Plane 数据 (64 项: 4 模块 × 8 行 × 2 列)
-        zplane_modules = ['A', 'B', 'C', 'D']
-        for module in zplane_modules:
-            for row_num in range(1, 9):
-                # Current
+        try:
+            # 定义所有 71 个数据项
+            all_items = []
+            
+            # COMBINER ISO TEMPERATURES (7 项)
+            combiner_items = ['AZ', 'BZ', 'CZ', 'DZ', 'AB', 'CD', 'ABCD']
+            for item_name in combiner_items:
                 all_items.append({
-                    'item_name': f'Z-Plane {module}-Current-{row_num}',
-                    'value': '',
-                    'unit': 'A',
-                    'category': f'Z-Plane {module}'
-                })
-                # ISO Temp
-                all_items.append({
-                    'item_name': f'Z-Plane {module}-ISO Temp-{row_num}',
+                    'item_name': item_name,
                     'value': '',
                     'unit': '°C',
-                    'category': f'Z-Plane {module}'
+                    'category': 'COMBINER'
                 })
-        
-        # 如果有辅助识别数据，填充到模板中
-        if assisted_data is not None and not assisted_data.empty:
-            for _, row in assisted_data.iterrows():
-                item_name = row.get('item_name', '')
-                value = row.get('value', '')
-                
-                # 查找匹配的数据项
-                for item in all_items:
-                    if item['item_name'] == item_name:
-                        item['value'] = str(value) if value != '' else ''
-                        break
-        
-        # 显示到表格
-        self.data_table.setRowCount(len(all_items))
-        
-        for row, item in enumerate(all_items):
-            # 数据项名称（只读）
-            name_item = QTableWidgetItem(item['item_name'])
-            name_item.setFlags(name_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            name_item.setBackground(Qt.GlobalColor.lightGray)
-            self.data_table.setItem(row, 0, name_item)
             
-            # 数值（可编辑）
-            value_item = QTableWidgetItem(item['value'])
-            # 如果是辅助识别填充的数据，使用浅黄色背景提示用户核对
-            if item['value']:
-                value_item.setBackground(Qt.GlobalColor.yellow)
-                value_item.setToolTip("辅助识别的数据，请核对")
-            else:
-                value_item.setBackground(Qt.GlobalColor.white)
-            self.data_table.setItem(row, 1, value_item)
+            # Z-Plane 数据 (64 项: 4 模块 × 8 行 × 2 列)
+            zplane_modules = ['A', 'B', 'C', 'D']
+            for module in zplane_modules:
+                for row_num in range(1, 9):
+                    # Current
+                    all_items.append({
+                        'item_name': f'Z-Plane {module}-Current-{row_num}',
+                        'value': '',
+                        'unit': 'A',
+                        'category': f'Z-Plane {module}'
+                    })
+                    # ISO Temp
+                    all_items.append({
+                        'item_name': f'Z-Plane {module}-ISO Temp-{row_num}',
+                        'value': '',
+                        'unit': '°C',
+                        'category': f'Z-Plane {module}'
+                    })
             
-            # 单位（只读）
-            unit_item = QTableWidgetItem(item['unit'])
-            unit_item.setFlags(unit_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            unit_item.setBackground(Qt.GlobalColor.lightGray)
-            self.data_table.setItem(row, 2, unit_item)
+            # 如果有辅助识别数据，填充到模板中
+            if assisted_data is not None and not assisted_data.empty:
+                for _, row in assisted_data.iterrows():
+                    item_name = row.get('item_name', '')
+                    value = row.get('value', '')
+                    
+                    # 查找匹配的数据项
+                    for item in all_items:
+                        if item['item_name'] == item_name:
+                            item['value'] = str(value) if value != '' else ''
+                            break
+            
+            # 显示到表格
+            self.data_table.setRowCount(len(all_items))
+            
+            for row, item in enumerate(all_items):
+                try:
+                    # 数据项名称（只读）
+                    name_item = QTableWidgetItem(item['item_name'])
+                    name_item.setFlags(name_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    name_item.setBackground(Qt.GlobalColor.lightGray)
+                    self.data_table.setItem(row, 0, name_item)
+                    
+                    # 数值（可编辑）
+                    value_item = QTableWidgetItem(item['value'])
+                    # 如果是辅助识别填充的数据，使用浅黄色背景提示用户核对
+                    if item['value']:
+                        value_item.setBackground(Qt.GlobalColor.yellow)
+                        value_item.setToolTip("辅助识别的数据，请核对")
+                    else:
+                        value_item.setBackground(Qt.GlobalColor.white)
+                    self.data_table.setItem(row, 1, value_item)
+                    
+                    # 单位（只读）
+                    unit_item = QTableWidgetItem(item['unit'])
+                    unit_item.setFlags(unit_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                    unit_item.setBackground(Qt.GlobalColor.lightGray)
+                    self.data_table.setItem(row, 2, unit_item)
+                    
+                except Exception as e:
+                    print(f"设置表格第 {row} 行时出错：{str(e)}")
+                    continue
+                    
+        except Exception as e:
+            import traceback
+            error_msg = f"显示数据模板失败：{str(e)}\n\n{traceback.format_exc()}"
+            print(error_msg)
+            QMessageBox.critical(self, "错误", f"显示数据模板失败：{str(e)}")
     
     def save_data(self):
         """保存数据"""
