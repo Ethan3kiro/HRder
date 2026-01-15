@@ -20,10 +20,10 @@ class FullscreenDataEntryWindow(QWidget):
     # 信号
     closed = pyqtSignal()  # 窗口关闭信号
     
-    def __init__(self, ocr_extractor, database, device_manager, settings_manager, 
-                 image_path=None, parent=None):
+    def __init__(self, database, device_manager, settings_manager, 
+                 image_path=None, dl_ocr_extractor=None, parent=None):
         super().__init__(parent)
-        self.ocr_extractor = ocr_extractor
+        self.dl_ocr_extractor = dl_ocr_extractor
         self.database = database
         self.device_manager = device_manager
         self.settings_manager = settings_manager
@@ -94,6 +94,24 @@ class FullscreenDataEntryWindow(QWidget):
         
         toolbar_layout.addSpacing(20)
         
+        # 录入模式按钮
+        self.assist_btn = QPushButton("🤖 辅助录入")
+        self.assist_btn.clicked.connect(self.start_assisted_entry)
+        self.assist_btn.setToolTip("使用深度学习模型辅助识别数字")
+        if self.dl_ocr_extractor:
+            self.assist_btn.setEnabled(True)
+        else:
+            self.assist_btn.setEnabled(False)
+            self.assist_btn.setToolTip("深度学习模型不可用，请先训练模型")
+        toolbar_layout.addWidget(self.assist_btn)
+        
+        self.manual_btn = QPushButton("✍️ 手动录入")
+        self.manual_btn.clicked.connect(self.start_manual_entry)
+        self.manual_btn.setToolTip("显示空白表格，完全手动填写")
+        toolbar_layout.addWidget(self.manual_btn)
+        
+        toolbar_layout.addSpacing(20)
+        
         # 月份和设备
         toolbar_layout.addWidget(QLabel("月份："))
         self.month_edit = QLineEdit()
@@ -146,6 +164,13 @@ class FullscreenDataEntryWindow(QWidget):
         
         image_scroll.setWidget(self.image_label)
         layout.addWidget(image_scroll)
+        
+        # 辅助识别结果提示（仅在辅助录入模式下显示）
+        self.assist_result_label = QLabel("")
+        self.assist_result_label.setWordWrap(True)
+        self.assist_result_label.setVisible(False)  # 默认隐藏
+        self.assist_result_label.setMaximumHeight(150)
+        layout.addWidget(self.assist_result_label)
         
         return panel
     
@@ -237,10 +262,6 @@ class FullscreenDataEntryWindow(QWidget):
                 "padding: 10px; background-color: #fff; border: 1px solid #ddd;"
             )
             
-            # 自动显示数据模板
-            self.display_data_with_template(pd.DataFrame())
-            self.save_btn.setEnabled(True)
-            
         except Exception as e:
             self.image_label.setText(f"加载图像失败：{str(e)}")
             self.image_label.setStyleSheet(
@@ -260,8 +281,8 @@ class FullscreenDataEntryWindow(QWidget):
         if file_path:
             self.load_image_preview(file_path)
     
-    def start_ocr(self):
-        """开始 OCR 识别"""
+    def start_assisted_entry(self):
+        """开始辅助录入（使用深度学习模型）"""
         file_path = self.file_path_edit.text()
         
         if not file_path:
@@ -272,55 +293,82 @@ class FullscreenDataEntryWindow(QWidget):
             QMessageBox.critical(self, "错误", "文件不存在")
             return
         
-        if not self.ocr_extractor:
+        if not self.dl_ocr_extractor:
             QMessageBox.critical(
                 self, "错误", 
-                "OCR 提取器未初始化"
+                "深度学习模型未初始化"
             )
             return
         
         # 显示进度条
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)
-        
-        # 导入 OCRWorker
-        from .data_entry_widget import OCRWorker
+        self.progress_bar.setFormat("正在使用深度学习模型识别...")
         
         # 创建并启动工作线程
-        self.ocr_worker = OCRWorker(self.ocr_extractor, file_path)
-        self.ocr_worker.finished.connect(self.on_ocr_finished)
-        self.ocr_worker.error.connect(self.on_ocr_error)
-        self.ocr_worker.progress.connect(lambda msg: self.progress_bar.setFormat(msg))
+        from .data_entry_widget import DLOCRWorker
+        
+        self.ocr_worker = DLOCRWorker(self.dl_ocr_extractor, file_path)
+        self.ocr_worker.finished.connect(self.on_assisted_entry_finished)
+        self.ocr_worker.error.connect(self.on_assisted_entry_error)
         self.ocr_worker.start()
     
-    def on_ocr_finished(self, data):
-        """OCR 完成"""
+    def on_assisted_entry_finished(self, data):
+        """辅助录入完成"""
         self.progress_bar.setVisible(False)
+        
+        # 显示模板并填充识别结果
+        self.current_data = data if data is not None else pd.DataFrame()
+        self.display_data_with_template(self.current_data)
+        self.save_btn.setEnabled(True)
+        
+        # 显示辅助识别结果提示
+        self.assist_result_label.setVisible(True)
+        
+        if data is not None and not data.empty:
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;'>"
+                f"<b>✓ 辅助识别完成</b><br>"
+                f"识别到 {len(data)} 个数据项<br>"
+                f"<span style='color: #666;'>请仔细核对并修正识别结果</span>"
+                f"</div>"
+            )
+        else:
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px;'>"
+                f"<b>⚠ 未识别到数据</b><br>"
+                f"<span style='color: #666;'>请手动填写所有数据</span>"
+                f"</div>"
+            )
+    
+    def on_assisted_entry_error(self, error_msg):
+        """辅助录入错误"""
+        self.progress_bar.setVisible(False)
+        QMessageBox.critical(self, "错误", f"辅助识别失败：{error_msg}")
+    
+    def start_manual_entry(self):
+        """开始手动录入（显示空白表格）"""
+        file_path = self.file_path_edit.text()
+        
+        if not file_path:
+            QMessageBox.warning(self, "提示", "请先选择截图文件")
+            return
+        
+        # 隐藏辅助识别结果提示
+        self.assist_result_label.setVisible(False)
         
         # 显示空白模板
         self.current_data = pd.DataFrame()
         self.display_data_with_template(self.current_data)
         self.save_btn.setEnabled(True)
         
-        if data is not None and not data.empty:
-            QMessageBox.information(
-                self, "识别完成", 
-                f"✓ OCR 识别到 {len(data)} 个数字\n\n"
-                f"请对照左侧截图手动填写数据"
-            )
-        else:
-            QMessageBox.information(
-                self, "提示", 
-                "未识别到数据\n\n请对照左侧截图手动填写所有数据"
-            )
+        QMessageBox.information(
+            self, "手动录入", 
+            "✓ 已准备好空白表格\n\n请对照左侧截图手动填写所有数据"
+        )
     
-    def on_ocr_error(self, error_msg):
-        """OCR 错误"""
-        self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, "错误", error_msg)
-    
-    def display_data_with_template(self, ocr_data):
-        """显示完整的数据模板"""
+    def display_data_with_template(self, assisted_data):
+        """显示完整的数据模板，并填充辅助识别的数据"""
         # 定义所有 71 个数据项
         all_items = []
         
@@ -353,6 +401,18 @@ class FullscreenDataEntryWindow(QWidget):
                     'category': f'Z-Plane {module}'
                 })
         
+        # 如果有辅助识别数据，填充到模板中
+        if assisted_data is not None and not assisted_data.empty:
+            for _, row in assisted_data.iterrows():
+                item_name = row.get('item_name', '')
+                value = row.get('value', '')
+                
+                # 查找匹配的数据项
+                for item in all_items:
+                    if item['item_name'] == item_name:
+                        item['value'] = str(value) if value != '' else ''
+                        break
+        
         # 显示到表格
         self.data_table.setRowCount(len(all_items))
         
@@ -365,7 +425,12 @@ class FullscreenDataEntryWindow(QWidget):
             
             # 数值（可编辑）
             value_item = QTableWidgetItem(item['value'])
-            value_item.setBackground(Qt.GlobalColor.white)
+            # 如果是辅助识别填充的数据，使用浅黄色背景提示用户核对
+            if item['value']:
+                value_item.setBackground(Qt.GlobalColor.yellow)
+                value_item.setToolTip("辅助识别的数据，请核对")
+            else:
+                value_item.setBackground(Qt.GlobalColor.white)
             self.data_table.setItem(row, 1, value_item)
             
             # 单位（只读）

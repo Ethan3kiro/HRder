@@ -30,7 +30,7 @@
 
 ### 1. 安装依赖
 
-**Windows 用户（推荐）**:
+**Windows 用户**:
 
 双击运行 `install_simple.bat`，或在命令提示符中运行：
 ```cmd
@@ -42,12 +42,14 @@ install_simple.bat
 ./install_dependencies.sh
 ```
 
-**手动安装（如果脚本失败）**:
+**手动安装（推荐）**:
 
 Windows:
 ```cmd
 py -m pip install -r requirements.txt
 py -m pip install -r requirements-gui.txt
+```在命令提示符中运行以下命令安装 PyQt6：
+py -m pip install PyQt6 PyQt6-Charts
 ```
 
 macOS/Linux:

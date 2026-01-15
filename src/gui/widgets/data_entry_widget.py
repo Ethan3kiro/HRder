@@ -71,43 +71,54 @@ class DataEntryWidget(QWidget):
         title.setObjectName("pageTitle")
         layout.addWidget(title)
         
-        # 文件选择区域
-        file_group = QGroupBox("1. 选择截图文件")
-        file_layout = QHBoxLayout()
+        # 文件选择和录入模式区域
+        file_group = QGroupBox("1. 选择截图文件和录入模式")
+        file_layout = QVBoxLayout()
         
+        # 第一行：文件选择
+        file_row = QHBoxLayout()
         self.file_path_edit = QLineEdit()
         self.file_path_edit.setPlaceholderText("请选择发射机截图文件...")
         self.file_path_edit.setReadOnly(True)
-        file_layout.addWidget(self.file_path_edit)
+        file_row.addWidget(self.file_path_edit)
         
         browse_btn = QPushButton("📁 浏览")
         browse_btn.clicked.connect(self.browse_file)
-        file_layout.addWidget(browse_btn)
+        file_row.addWidget(browse_btn)
         
-        ocr_btn = QPushButton("🔍 OCR 识别")
-        ocr_btn.clicked.connect(self.start_ocr)
-        file_layout.addWidget(ocr_btn)
+        file_layout.addLayout(file_row)
         
-        # 添加"使用辅助模型"开关
-        self.use_dl_model_checkbox = QCheckBox("🤖 使用辅助模型")
-        self.use_dl_model_checkbox.setToolTip(
-            "使用深度学习模型辅助识别数字\n"
-            "注意：模型准确率约 12%，仅供参考"
-        )
+        # 第二行：录入模式选择
+        mode_row = QHBoxLayout()
+        mode_label = QLabel("录入模式：")
+        mode_row.addWidget(mode_label)
+        
+        # 辅助录入按钮（使用深度学习模型）
+        self.assist_btn = QPushButton("🤖 辅助录入")
+        self.assist_btn.clicked.connect(self.start_assisted_entry)
+        self.assist_btn.setToolTip("使用深度学习模型辅助识别数字，识别结果仅供参考")
         # 只有在深度学习模型可用时才启用
         if self.dl_ocr_extractor:
-            self.use_dl_model_checkbox.setEnabled(True)
-            self.use_dl_model_checkbox.setChecked(False)  # 默认不使用
+            self.assist_btn.setEnabled(True)
         else:
-            self.use_dl_model_checkbox.setEnabled(False)
-            self.use_dl_model_checkbox.setToolTip("深度学习模型不可用")
-        file_layout.addWidget(self.use_dl_model_checkbox)
+            self.assist_btn.setEnabled(False)
+            self.assist_btn.setToolTip("深度学习模型不可用")
+        mode_row.addWidget(self.assist_btn)
+        
+        # 手动录入按钮
+        manual_btn = QPushButton("✍️ 手动录入")
+        manual_btn.clicked.connect(self.start_manual_entry)
+        manual_btn.setToolTip("显示空白表格，完全手动填写所有数据")
+        mode_row.addWidget(manual_btn)
         
         # 添加全屏模式按钮
         fullscreen_btn = QPushButton("🖥️ 全屏模式")
         fullscreen_btn.clicked.connect(self.enter_fullscreen_mode)
         fullscreen_btn.setToolTip("进入全屏数据录入模式，查看更大的截图")
-        file_layout.addWidget(fullscreen_btn)
+        mode_row.addWidget(fullscreen_btn)
+        
+        mode_row.addStretch()
+        file_layout.addLayout(mode_row)
         
         file_group.setLayout(file_layout)
         layout.addWidget(file_group)
@@ -144,62 +155,32 @@ class DataEntryWidget(QWidget):
         month_group.setLayout(month_layout)
         layout.addWidget(month_group)
         
-        # OCR 识别结果显示区域 - 左右分栏布局
-        ocr_result_group = QGroupBox("3. 原始截图 & OCR 识别结果（参考）")
-        ocr_result_main_layout = QHBoxLayout()
-        
-        # 左侧：原始截图显示
-        image_container = QWidget()
-        image_layout = QVBoxLayout(image_container)
-        image_layout.setContentsMargins(0, 0, 0, 0)
-        
-        image_title = QLabel("原始截图")
-        image_title.setStyleSheet("font-weight: bold; color: #333;")
-        image_layout.addWidget(image_title)
+        # 截图预览区域
+        preview_group = QGroupBox("3. 原始截图预览")
+        preview_layout = QVBoxLayout()
         
         # 图像显示标签（带滚动）
         image_scroll = QScrollArea()
         image_scroll.setWidgetResizable(True)
-        image_scroll.setMaximumHeight(200)
-        image_scroll.setMinimumHeight(100)
-        image_scroll.setMinimumWidth(300)
+        image_scroll.setMaximumHeight(250)
+        image_scroll.setMinimumHeight(150)
         
-        self.image_label = QLabel("选择图像后将在这里显示")
+        self.image_label = QLabel("选择图像后将在这里显示\n\n提示：可以使用 '全屏模式' 查看更大的截图")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setStyleSheet("color: #999; padding: 20px; background-color: #f5f5f5; border: 1px dashed #ccc;")
         self.image_label.setScaledContents(False)  # 不自动缩放，保持原始比例
         
         image_scroll.setWidget(self.image_label)
-        image_layout.addWidget(image_scroll)
+        preview_layout.addWidget(image_scroll)
         
-        ocr_result_main_layout.addWidget(image_container, 1)  # 占 1 份空间
+        # 辅助识别结果提示（仅在辅助录入模式下显示）
+        self.assist_result_label = QLabel("")
+        self.assist_result_label.setWordWrap(True)
+        self.assist_result_label.setVisible(False)  # 默认隐藏
+        preview_layout.addWidget(self.assist_result_label)
         
-        # 右侧：OCR 识别结果
-        ocr_text_container = QWidget()
-        ocr_text_layout = QVBoxLayout(ocr_text_container)
-        ocr_text_layout.setContentsMargins(0, 0, 0, 0)
-        
-        ocr_text_title = QLabel("OCR 识别结果")
-        ocr_text_title.setStyleSheet("font-weight: bold; color: #333;")
-        ocr_text_layout.addWidget(ocr_text_title)
-        
-        # 使用 QScrollArea 包装 OCR 结果，限制高度
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setMaximumHeight(200)  # 限制最大高度为 200 像素
-        scroll_area.setMinimumHeight(100)  # 最小高度 100 像素
-        
-        self.ocr_result_label = QLabel("OCR 识别到的所有数字将显示在这里，供您参考填写")
-        self.ocr_result_label.setWordWrap(True)
-        self.ocr_result_label.setStyleSheet("color: #666; padding: 10px;")
-        
-        scroll_area.setWidget(self.ocr_result_label)
-        ocr_text_layout.addWidget(scroll_area)
-        
-        ocr_result_main_layout.addWidget(ocr_text_container, 1)  # 占 1 份空间
-        
-        ocr_result_group.setLayout(ocr_result_main_layout)
-        layout.addWidget(ocr_result_group)
+        preview_group.setLayout(preview_layout)
+        layout.addWidget(preview_group)
         
         # 数据预览区域
         preview_group = QGroupBox("4. 数据填写表格")
@@ -310,8 +291,8 @@ class DataEntryWidget(QWidget):
             # 加载并显示图像预览
             self.load_image_preview(file_path)
     
-    def start_ocr(self):
-        """开始 OCR 识别"""
+    def start_assisted_entry(self):
+        """开始辅助录入（使用深度学习模型）"""
         file_path = self.file_path_edit.text()
         
         if not file_path:
@@ -322,98 +303,108 @@ class DataEntryWidget(QWidget):
             QMessageBox.critical(self, "错误", "文件不存在")
             return
         
-        # 检查是否使用深度学习模型
-        use_dl_model = self.use_dl_model_checkbox.isChecked()
-        
-        if use_dl_model:
-            if not self.dl_ocr_extractor:
-                QMessageBox.critical(
-                    self, "错误",
-                    "深度学习模型不可用\n\n请确保模型文件存在:\n"
-                    "- models/digit_ocr_model.pth\n"
-                    "- models/coordinates.json"
-                )
-                return
-            extractor = self.dl_ocr_extractor
-        else:
-            if not self.ocr_extractor:
-                QMessageBox.critical(
-                    self, "错误", 
-                    "OCR 提取器未初始化\n\n请确保已安装 Tesseract-OCR"
-                )
-                return
-            extractor = self.ocr_extractor
+        if not self.dl_ocr_extractor:
+            QMessageBox.critical(
+                self, "错误",
+                "深度学习模型不可用\n\n请确保模型文件存在:\n"
+                "- models/digit_ocr_model.pth\n"
+                "- models/coordinates.json"
+            )
+            return
         
         # 显示进度条
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # 不确定进度
         
         # 创建并启动工作线程
-        self.ocr_worker = OCRWorker(extractor, file_path)
-        self.ocr_worker.finished.connect(self.on_ocr_finished)
-        self.ocr_worker.error.connect(self.on_ocr_error)
-        self.ocr_worker.progress.connect(self.on_ocr_progress)
+        self.ocr_worker = OCRWorker(self.dl_ocr_extractor, file_path)
+        self.ocr_worker.finished.connect(self.on_assisted_finished)
+        self.ocr_worker.error.connect(self.on_assist_error)
+        self.ocr_worker.progress.connect(self.on_assist_progress)
         self.ocr_worker.start()
+        
+        QMessageBox.information(
+            self, "辅助录入", 
+            "正在使用深度学习模型识别数字...\n\n"
+            "识别结果仅供参考，请仔细核对原始截图"
+        )
     
-    def on_ocr_progress(self, message):
-        """OCR 进度更新"""
+    def start_manual_entry(self):
+        """开始手动录入"""
+        file_path = self.file_path_edit.text()
+        
+        if not file_path:
+            QMessageBox.warning(self, "提示", "请先选择截图文件")
+            return
+        
+        # 显示空白模板
+        self.current_data = pd.DataFrame()
+        self.display_data_with_template(self.current_data)
+        self.save_btn.setEnabled(True)
+        
+        # 隐藏辅助识别结果
+        self.assist_result_label.setVisible(False)
+        
+        QMessageBox.information(
+            self, "手动录入", 
+            "✓ 已显示完整的数据项模板\n\n"
+            "请参考上方截图，手动填写所有数据"
+        )
+    
+    def on_assist_progress(self, message):
+        """辅助识别进度更新"""
         self.progress_bar.setFormat(message)
     
-    def on_ocr_finished(self, data):
-        """OCR 完成"""
+    def on_assisted_finished(self, data):
+        """辅助识别完成"""
         self.progress_bar.setVisible(False)
         
-        # 显示 OCR 识别的原始结果
+        # 显示辅助识别的原始结果
         if data is not None and not data.empty:
-            ocr_summary = "OCR 识别到以下数字（请参考这些数字填写到正确的位置）：\n\n"
+            assist_summary = "⚠️ 辅助识别结果（仅供参考，请仔细核对）：\n\n"
+            assist_summary += f"识别到 {len(data)} 个数字，请参考这些数字填写到下方表格的正确位置\n\n"
             
-            # 按分类显示
-            combiner_data = data[data['item_name'].isin(['AZ', 'BZ', 'CZ', 'DZ', 'AB', 'CD', 'ABCD'])]
-            if not combiner_data.empty:
-                ocr_summary += "【COMBINER】\n"
-                for _, row in combiner_data.iterrows():
-                    ocr_summary += f"  • {row['item_name']}: {row['value']} {row['unit']}\n"
-                ocr_summary += "\n"
+            # 简化显示，只列出识别到的数字
+            for _, row in data.iterrows():
+                assist_summary += f"• {row['item_name']}: {row['value']} {row['unit']}\n"
             
-            # Z-Plane 数据
-            for module in ['A', 'B', 'C', 'D']:
-                module_data = data[data['item_name'].str.contains(f'Z-Plane {module}')]
-                if not module_data.empty:
-                    ocr_summary += f"【Z-Plane {module}】\n"
-                    for _, row in module_data.iterrows():
-                        ocr_summary += f"  • {row['item_name']}: {row['value']} {row['unit']}\n"
-                    ocr_summary += "\n"
-            
-            self.ocr_result_label.setText(ocr_summary)
-            self.ocr_result_label.setStyleSheet("color: #000; padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px; font-family: monospace;")
+            self.assist_result_label.setText(assist_summary)
+            self.assist_result_label.setStyleSheet(
+                "color: #000; padding: 10px; background-color: #fff9c4; "
+                "border: 2px solid #fbc02d; border-radius: 4px; font-family: monospace;"
+            )
+            self.assist_result_label.setVisible(True)
         else:
-            self.ocr_result_label.setText("未识别到任何数据，请手动填写所有数据")
-            self.ocr_result_label.setStyleSheet("color: #666; padding: 10px; background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px;")
+            self.assist_result_label.setText("⚠️ 未识别到任何数据，请手动填写所有数据")
+            self.assist_result_label.setStyleSheet(
+                "color: #666; padding: 10px; background-color: #fff3e0; "
+                "border: 1px solid #ff9800; border-radius: 4px;"
+            )
+            self.assist_result_label.setVisible(True)
         
         # 显示空白模板供用户填写
-        self.current_data = pd.DataFrame()  # 不自动填充，让用户参考 OCR 结果手动填写
+        self.current_data = pd.DataFrame()  # 不自动填充，让用户参考识别结果手动填写
         self.display_data_with_template(self.current_data)
         self.save_btn.setEnabled(True)
         
         if data is None or data.empty:
             QMessageBox.information(
                 self, "提示", 
-                f"未能识别到数据\n\n已显示完整的数据项模板，请手动填写所有数据"
+                "未能识别到数据\n\n已显示完整的数据项模板，请手动填写所有数据"
             )
         else:
             recognized_count = len(data)
-            total_count = 71  # 7 COMBINER + 64 Z-Plane
             
             QMessageBox.information(
                 self, "识别完成", 
-                f"✓ OCR 识别到 {recognized_count} 个数字\n\n"
-                f"这些数字显示在上方的参考区域\n"
+                f"✓ 辅助识别到 {recognized_count} 个数字\n\n"
+                f"识别结果显示在截图下方的黄色区域\n"
                 f"请参考这些数字，手动填写到下方表格的正确位置\n\n"
-                f"提示：OCR 可能会把数字放错位置，请仔细核对原始截图"
+                f"⚠️ 注意：模型可能会识别错误或放错位置，请仔细核对原始截图"
             )
     
-    def on_ocr_error(self, error_msg):
-        """OCR 错误"""
+    def on_assist_error(self, error_msg):
+        """辅助识别错误"""
         self.progress_bar.setVisible(False)
         QMessageBox.critical(self, "错误", error_msg)
     
@@ -624,12 +615,12 @@ class DataEntryWidget(QWidget):
         
         # 清空图像显示
         self.image_label.clear()
-        self.image_label.setText("选择图像后将在这里显示")
+        self.image_label.setText("选择图像后将在这里显示\n\n提示：可以使用 '全屏模式' 查看更大的截图")
         self.image_label.setStyleSheet("color: #999; padding: 20px; background-color: #f5f5f5; border: 1px dashed #ccc;")
         
-        # 清空 OCR 结果显示
-        self.ocr_result_label.setText("OCR 识别到的所有数字将显示在这里，供您参考填写")
-        self.ocr_result_label.setStyleSheet("color: #666; padding: 10px;")
+        # 隐藏辅助识别结果
+        self.assist_result_label.setVisible(False)
+        self.assist_result_label.setText("")
     
     def enter_fullscreen_mode(self):
         """进入全屏数据录入模式"""
@@ -637,7 +628,6 @@ class DataEntryWidget(QWidget):
         
         # 创建全屏窗口
         self.fullscreen_window = FullscreenDataEntryWindow(
-            ocr_extractor=self.ocr_extractor,
             database=self.database,
             device_manager=self.device_manager,
             settings_manager=self.settings_manager,

@@ -83,7 +83,45 @@ py -m pip install --user -r requirements.txt
 py -m pip install --user -r requirements-gui.txt
 ```
 
-### 问题 6：网络连接超时
+### 问题 6：pip 内部错误 (Exception in run)
+
+**症状**：
+```
+ERROR: Exception:
+Traceback (most recent call last):
+  File "...\pip\_internal\cli\base_command.py", line 105, in _run_wrapper
+  File "...\pip\_internal\cli\req_command.py", line 96, in _inner_run
+```
+
+**原因**：
+1. pip 版本过旧或损坏
+2. 网络连接不稳定
+3. requirements.txt 文件解析错误
+
+**解决方案**：
+
+方法 1：使用修复版安装脚本（推荐）
+```cmd
+install_simple_fixed.bat
+```
+
+方法 2：手动修复
+```cmd
+REM 第一步：升级 pip
+py -m pip install --upgrade pip
+
+REM 第二步：使用国内镜像源和更长超时时间
+py -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --default-timeout=100
+py -m pip install -r requirements-gui.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --default-timeout=100
+```
+
+方法 3：逐个安装依赖
+```cmd
+py -m pip install pytesseract Pillow opencv-python pandas numpy matplotlib plotly openpyxl xlsxwriter python-dateutil
+py -m pip install PyQt6
+```
+
+### 问题 7：网络连接超时
 
 **症状**：
 ```
@@ -100,7 +138,7 @@ py -m pip install -r requirements-gui.txt -i https://pypi.tuna.tsinghua.edu.cn/s
 
 ## 运行问题
 
-### 问题 7：启动后立即关闭
+### 问题 8：启动后立即关闭
 
 **可能原因**：
 1. 缺少依赖
