@@ -1,62 +1,86 @@
-# 安装深度学习依赖
+# Windows 深度学习依赖安装指南
 
-## 📦 需要安装的包
+如果你需要使用深度学习模型功能，需要额外安装 PyTorch 和相关依赖。
 
-```bash
-pip install torch torchvision opencv-python albumentations scikit-learn
+## 快速安装（推荐）
+
+### 方法1：使用 py 启动器（最可靠）
+
+```cmd
+py -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+py -m pip install -r requirements-training.txt
 ```
 
-### 各包说明
+### 方法2：直接使用 pip
 
-1. **torch** (PyTorch)
-   - 深度学习框架
-   - 支持 M 芯片 MPS 加速
-   - 大小：~200 MB
+如果 Python 已添加到 PATH：
 
-2. **torchvision**
-   - PyTorch 图像处理工具
-   - 大小：~10 MB
-
-3. **opencv-python**
-   - OpenCV 图像处理库
-   - 大小：~90 MB
-
-4. **albumentations**
-   - 数据增强库
-   - 大小：~5 MB
-
-5. **scikit-learn**
-   - 机器学习工具（用于数据分割）
-   - 大小：~30 MB
-
-**总大小**：约 335 MB
-
-**预计时间**：10-15 分钟（取决于网速）
-
-## 🚀 开始安装
-
-运行以下命令：
-
-```bash
-pip install torch torchvision opencv-python albumentations scikit-learn
+```cmd
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements-training.txt
 ```
 
-## ✅ 验证安装
+### 方法3：使用完整路径
 
-安装完成后，运行以下命令验证：
+找到你的 Python 安装路径（通常在以下位置之一）：
+- `C:\Python39\`
+- `C:\Python310\`
+- `C:\Python311\`
+- `C:\Python312\`
+- `%LOCALAPPDATA%\Programs\Python\Python39\`
 
-```bash
-python3 -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'MPS available: {torch.backends.mps.is_available()}')"
+然后运行：
+
+```cmd
+"C:\Python311\python.exe" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+"C:\Python311\python.exe" -m pip install -r requirements-training.txt
 ```
 
-应该看到：
+## 验证安装
+
+运行以下命令验证 PyTorch 是否安装成功：
+
+```cmd
+py -c "import torch; print(f'PyTorch {torch.__version__} 安装成功')"
 ```
-PyTorch: 2.x.x
-MPS available: True
+
+## 常见问题
+
+### 问题1：找不到 Python 命令
+
+**解决方案**：使用 `py` 启动器，这是 Windows 上最可靠的方式。
+
+### 问题2：pip 不是内部或外部命令
+
+**解决方案**：使用 `py -m pip` 而不是直接使用 `pip`。
+
+### 问题3：网络连接超时
+
+**解决方案**：使用国内镜像源：
+
+```cmd
+py -m pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-如果 MPS available 是 True，说明可以使用 M 芯片加速！
+### 问题4：权限不足
 
-## 📝 安装完成后
+**解决方案**：以管理员身份运行命令提示符，或添加 `--user` 参数：
 
-告诉我安装结果，我会继续创建剩余的训练脚本！
+```cmd
+py -m pip install --user torch torchvision
+```
+
+## GPU 支持（可选）
+
+如果你有 NVIDIA GPU 并想使用 GPU 加速训练：
+
+1. 安装 CUDA Toolkit（11.8 或 12.1）
+2. 安装对应版本的 PyTorch：
+
+```cmd
+py -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+## 不安装深度学习依赖
+
+如果你只需要使用传统 OCR 功能，不需要安装这些依赖。系统会自动检测并禁用深度学习模型功能。

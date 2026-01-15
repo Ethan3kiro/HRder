@@ -37,31 +37,47 @@
 install_dependencies.bat
 ```
 
+**Windows**:
+```cmd
+install_dependencies.bat
+```
+
 **macOS/Linux**:
 ```bash
 ./install_dependencies.sh
 ```
 
 脚本会自动：
-- 检查 Python 版本
+- 检查 Python 版本（支持多种 Python 安装方式）
 - 安装所有 Python 依赖包
 - 检查 Tesseract OCR 是否安装
 - 验证安装结果
+
+> **Windows 用户注意**：脚本会自动查找 Python，支持：
+> - 标准 Python 安装
+> - Microsoft Store 安装
+> - py 启动器
+> - 自定义路径安装
 
 #### 方法 2: 手动安装
 
 如果自动安装失败，可以手动安装：
 
-```bash
-# 安装核心依赖
-pip install -r requirements.txt
-
-# 安装 GUI 依赖
-pip install -r requirements-gui.txt
-
-# 安装训练依赖（可选）
-pip install -r requirements-training.txt
+**Windows**:
+```cmd
+py -m pip install -r requirements.txt
+py -m pip install -r requirements-gui.txt
 ```
+
+**macOS/Linux**:
+```bash
+pip install -r requirements.txt
+pip install -r requirements-gui.txt
+```
+
+**安装训练依赖（可选）**:
+
+如果需要训练深度学习模型，参见 [INSTALL_DL_DEPENDENCIES.md](INSTALL_DL_DEPENDENCIES.md)
 
 **安装 Tesseract OCR**:
 - **Windows**: 下载并安装 https://github.com/UB-Mannheim/tesseract/wiki
@@ -73,6 +89,17 @@ pip install -r requirements-training.txt
 ### 2. 启动应用
 
 **图形界面（推荐）**:
+
+**Windows**:
+```cmd
+start_gui.bat
+```
+或者：
+```cmd
+py main_gui.py
+```
+
+**macOS/Linux**:
 ```bash
 python main_gui.py
 ```
