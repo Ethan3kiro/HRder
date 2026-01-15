@@ -1,8 +1,8 @@
 @echo off
 REM Simple installation script using py launcher
 
-REM Change to script directory
-cd /d "%~dp0"
+REM Change to script directory (works across drives)
+pushd "%~dp0"
 
 echo ========================================
 echo Harris Reader - Installing Dependencies
@@ -27,3 +27,6 @@ echo.
 echo Or double-click: start_gui.bat
 echo.
 pause
+
+REM Return to original directory
+popd

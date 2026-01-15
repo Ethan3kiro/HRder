@@ -6,8 +6,8 @@ echo Harris Reader
 echo ========================================
 echo.
 
-REM Change to script directory
-cd /d "%~dp0"
+REM Change to script directory (works across drives)
+pushd "%~dp0"
 
 echo Starting application...
 echo.
@@ -22,3 +22,6 @@ if errorlevel 1 (
     echo.
     pause
 )
+
+REM Return to original directory
+popd
