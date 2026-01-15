@@ -1,6 +1,9 @@
 @echo off
 REM Simple installation script using py launcher
 
+REM Change to script directory
+cd /d "%~dp0"
+
 echo ========================================
 echo Harris Reader - Installing Dependencies
 echo ========================================

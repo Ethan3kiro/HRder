@@ -6,6 +6,9 @@ echo Harris Reader
 echo ========================================
 echo.
 
+REM Change to script directory
+cd /d "%~dp0"
+
 echo Starting application...
 echo.
 
