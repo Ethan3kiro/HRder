@@ -1,9 +1,8 @@
 @echo off
-chcp 65001 >nul
-REM 发射机数据分析器 - Windows 启动脚本
+REM Harris Reader - Windows Startup Script
 
 echo ========================================
-echo 发射机数据分析器
+echo Harris Reader
 echo ========================================
 echo.
 
@@ -68,21 +67,21 @@ if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" (
 )
 
 REM 未找到 Python
-echo 错误: 未找到 Python
+echo Error: Python not found
 echo.
-echo 请先安装 Python 3.9 或更高版本
-echo 下载地址: https://www.python.org/downloads/
+echo Please install Python 3.9 or higher
+echo Download: https://www.python.org/downloads/
 echo.
-echo 安装时请勾选 "Add Python to PATH" 选项
+echo IMPORTANT: Check "Add Python to PATH" during installation
 pause
 exit /b 1
 
 :found_python
-echo 找到 Python: %PYTHON_CMD%
+echo Found Python: %PYTHON_CMD%
 %PYTHON_CMD% --version
 echo.
 
-echo 正在启动应用...
+echo Starting application...
 echo.
 
 REM 启动 GUI
@@ -91,6 +90,6 @@ REM 启动 GUI
 REM 如果出错，暂停以查看错误信息
 if errorlevel 1 (
     echo.
-    echo 启动失败，请检查错误信息
+    echo Startup failed, please check error messages
     pause
 )

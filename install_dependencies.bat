@@ -1,9 +1,8 @@
 @echo off
-chcp 65001 >nul
-REM 自动安装依赖 - Windows 批处理脚本
+REM Auto Install Dependencies - Windows Batch Script
 
 echo ========================================
-echo 发射机数据分析器 - 自动安装依赖
+echo Harris Reader - Auto Install Dependencies
 echo ========================================
 echo.
 
@@ -68,21 +67,21 @@ if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" (
 )
 
 REM 未找到 Python
-echo 错误: 未找到 Python
+echo Error: Python not found
 echo.
-echo 请先安装 Python 3.9 或更高版本
-echo 下载地址: https://www.python.org/downloads/
+echo Please install Python 3.9 or higher
+echo Download: https://www.python.org/downloads/
 echo.
-echo 安装时请勾选 "Add Python to PATH" 选项
+echo IMPORTANT: Check "Add Python to PATH" during installation
 pause
 exit /b 1
 
 :found_python
-echo 找到 Python: %PYTHON_CMD%
+echo Found Python: %PYTHON_CMD%
 %PYTHON_CMD% --version
 echo.
 
-echo 正在安装依赖...
+echo Installing dependencies...
 echo.
 
 REM 运行 Python 安装脚本
@@ -91,11 +90,11 @@ REM 运行 Python 安装脚本
 REM 检查返回值
 if errorlevel 1 (
     echo.
-    echo 安装过程中出现错误
+    echo Installation failed
     pause
     exit /b 1
 )
 
 echo.
-echo 安装完成！
+echo Installation completed!
 pause
