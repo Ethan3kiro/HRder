@@ -1,0 +1,62 @@
+[MASTER]
+# Python code to execute, usually for sys.path manipulation
+init-hook='import sys; sys.path.append(".")'
+
+# Use multiple processes to speed up Pylint
+jobs=1
+
+# Pickle collected data for later comparisons
+persistent=yes
+
+[MESSAGES CONTROL]
+# Disable specific warnings that are too strict for this project
+disable=
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    W0212,  # protected-access
+    W0511,  # fixme
+    C0301,  # line-too-long (handled by black)
+    C0330,  # bad-continuation (handled by black)
+
+[REPORTS]
+# Set the output format
+output-format=text
+
+# Include message's id in output
+include-ids=yes
+
+# Put messages in a separate file for each module / package
+files-output=no
+
+# Tells whether to display a full report or only the messages
+reports=yes
+
+# Activate the evaluation score
+score=yes
+
+[BASIC]
+# Good variable names
+good-names=i,j,k,ex,Run,_,db,df,ax,fig
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=7
+
+# Maximum number of locals for function / method body
+max-locals=20
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=15
+
+# Maximum number of statements in function / method body
+max-statements=60

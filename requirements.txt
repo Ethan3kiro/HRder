@@ -1,0 +1,27 @@
+# 发射机数据分析器 - 生产环境依赖
+
+# OCR相关
+pytesseract>=0.3.13  # 0.3.13+ 兼容 Python 3.14
+Pillow>=10.0.0
+opencv-python>=4.8.0  # 可选：用于更高质量的图像预处理
+
+# 数据处理
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 数据库
+# SQLite是Python标准库的一部分，无需额外安装
+
+# 可视化
+matplotlib>=3.7.0
+plotly>=5.15.0
+
+# Excel导出
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# 跨平台路径处理
+# pathlib是Python 3.4+标准库的一部分，无需额外安装
+
+# 日志和工具
+python-dateutil>=2.8.0

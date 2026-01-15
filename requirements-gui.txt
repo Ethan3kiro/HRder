@@ -1,0 +1,15 @@
+# 发射机数据分析器 - GUI 依赖
+
+# 基础依赖（继承自 requirements.txt）
+-r requirements.txt
+
+# PyQt6 核心
+PyQt6>=6.6.0
+PyQt6-Charts>=6.6.0
+
+# 图表集成（已在 requirements.txt 中）
+# matplotlib>=3.7.0
+# plotly>=5.15.0
+
+# 可选：打包工具
+# pyinstaller>=6.0.0  # 用于打包成独立应用

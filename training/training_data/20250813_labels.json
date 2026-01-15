@@ -1,0 +1,508 @@
+{
+  "image_path": "/Users/Ethan/Desktop/HarrisReader/885-20250813.jpg",
+  "labels": {
+    "AZ": 45,
+    "BZ": 42,
+    "CZ": 44,
+    "DZ": 41,
+    "AB": 28,
+    "CD": 28,
+    "ABCD": 28,
+    "Z-Plane A-Current-1": 6.9,
+    "Z-Plane A-ISO Temp-1": 34,
+    "Z-Plane A-Current-2": 7.3,
+    "Z-Plane A-ISO Temp-2": 42,
+    "Z-Plane A-Current-3": 6.9,
+    "Z-Plane A-ISO Temp-3": 42,
+    "Z-Plane A-Current-4": 7.1,
+    "Z-Plane A-ISO Temp-4": 40,
+    "Z-Plane A-Current-5": 7.3,
+    "Z-Plane A-ISO Temp-5": 45,
+    "Z-Plane A-Current-6": 7.2,
+    "Z-Plane A-ISO Temp-6": 40,
+    "Z-Plane A-Current-7": 7.2,
+    "Z-Plane A-ISO Temp-7": 41,
+    "Z-Plane A-Current-8": 6.7,
+    "Z-Plane A-ISO Temp-8": 41,
+    "Z-Plane B-Current-1": 7.1,
+    "Z-Plane B-ISO Temp-1": 48,
+    "Z-Plane B-Current-2": 7.4,
+    "Z-Plane B-ISO Temp-2": 45,
+    "Z-Plane B-Current-3": 7.2,
+    "Z-Plane B-ISO Temp-3": 42,
+    "Z-Plane B-Current-4": 6.9,
+    "Z-Plane B-ISO Temp-4": 43,
+    "Z-Plane B-Current-5": 7.2,
+    "Z-Plane B-ISO Temp-5": 45,
+    "Z-Plane B-Current-6": 7.6,
+    "Z-Plane B-ISO Temp-6": 45,
+    "Z-Plane B-Current-7": 7.4,
+    "Z-Plane B-ISO Temp-7": 42,
+    "Z-Plane B-Current-8": 6.9,
+    "Z-Plane B-ISO Temp-8": 43,
+    "Z-Plane C-Current-1": 7.0,
+    "Z-Plane C-ISO Temp-1": 45,
+    "Z-Plane C-Current-2": 6.9,
+    "Z-Plane C-ISO Temp-2": 43,
+    "Z-Plane C-Current-3": 7.2,
+    "Z-Plane C-ISO Temp-3": 43,
+    "Z-Plane C-Current-4": 7.1,
+    "Z-Plane C-ISO Temp-4": 42,
+    "Z-Plane C-Current-5": 7.3,
+    "Z-Plane C-ISO Temp-5": 45,
+    "Z-Plane C-Current-6": 7.6,
+    "Z-Plane C-ISO Temp-6": 40,
+    "Z-Plane C-Current-7": 7.7,
+    "Z-Plane C-ISO Temp-7": 42,
+    "Z-Plane C-Current-8": 7.3,
+    "Z-Plane C-ISO Temp-8": 43,
+    "Z-Plane D-Current-1": 7.0,
+    "Z-Plane D-ISO Temp-1": 45,
+    "Z-Plane D-Current-2": 7.3,
+    "Z-Plane D-ISO Temp-2": 41,
+    "Z-Plane D-Current-3": 7.3,
+    "Z-Plane D-ISO Temp-3": 42,
+    "Z-Plane D-Current-4": 6.9,
+    "Z-Plane D-ISO Temp-4": 40,
+    "Z-Plane D-Current-5": 7.1,
+    "Z-Plane D-ISO Temp-5": 44,
+    "Z-Plane D-Current-6": 7.2,
+    "Z-Plane D-ISO Temp-6": 41,
+    "Z-Plane D-Current-7": 7.4,
+    "Z-Plane D-ISO Temp-7": 43,
+    "Z-Plane D-Current-8": 7.1,
+    "Z-Plane D-ISO Temp-8": 42
+  },
+  "total_cells": 71,
+  "labeled_cells": 71,
+  "created_by": "AI Assistant",
+  "created_at": "2026-01-15T19:41:39.750015",
+  "coordinates": {
+    "AZ": {
+      "x": 215,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "BZ": {
+      "x": 263,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "CZ": {
+      "x": 311,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "DZ": {
+      "x": 359,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "AB": {
+      "x": 407,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "CD": {
+      "x": 455,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "ABCD": {
+      "x": 506,
+      "y": 224,
+      "width": 34,
+      "height": 23
+    },
+    "Z-Plane A-Current-1": {
+      "x": 42,
+      "y": 292,
+      "width": 38,
+      "height": 19
+    },
+    "Z-Plane A-Current-2": {
+      "x": 42,
+      "y": 315,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-3": {
+      "x": 42,
+      "y": 338,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-4": {
+      "x": 42,
+      "y": 362,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-5": {
+      "x": 42,
+      "y": 392,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-6": {
+      "x": 42,
+      "y": 415,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-7": {
+      "x": 42,
+      "y": 439,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-Current-8": {
+      "x": 42,
+      "y": 462,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane A-ISO Temp-1": {
+      "x": 175,
+      "y": 292,
+      "width": 37,
+      "height": 20
+    },
+    "Z-Plane A-ISO Temp-2": {
+      "x": 175,
+      "y": 315,
+      "width": 37,
+      "height": 21
+    },
+    "Z-Plane A-ISO Temp-3": {
+      "x": 175,
+      "y": 338,
+      "width": 37,
+      "height": 21
+    },
+    "Z-Plane A-ISO Temp-4": {
+      "x": 175,
+      "y": 362,
+      "width": 37,
+      "height": 21
+    },
+    "Z-Plane A-ISO Temp-5": {
+      "x": 175,
+      "y": 392,
+      "width": 37,
+      "height": 19
+    },
+    "Z-Plane A-ISO Temp-6": {
+      "x": 175,
+      "y": 415,
+      "width": 37,
+      "height": 20
+    },
+    "Z-Plane A-ISO Temp-7": {
+      "x": 175,
+      "y": 438,
+      "width": 37,
+      "height": 21
+    },
+    "Z-Plane A-ISO Temp-8": {
+      "x": 175,
+      "y": 462,
+      "width": 37,
+      "height": 21
+    },
+    "Z-Plane B-Current-1": {
+      "x": 234,
+      "y": 290,
+      "width": 38,
+      "height": 21
+    },
+    "Z-Plane B-Current-2": {
+      "x": 234,
+      "y": 314,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-3": {
+      "x": 234,
+      "y": 338,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-4": {
+      "x": 234,
+      "y": 362,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-5": {
+      "x": 234,
+      "y": 390,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-6": {
+      "x": 234,
+      "y": 414,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-7": {
+      "x": 234,
+      "y": 438,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-Current-8": {
+      "x": 234,
+      "y": 462,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-1": {
+      "x": 366,
+      "y": 290,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-2": {
+      "x": 366,
+      "y": 314,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-3": {
+      "x": 366,
+      "y": 338,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-4": {
+      "x": 366,
+      "y": 362,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-5": {
+      "x": 366,
+      "y": 390,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-6": {
+      "x": 366,
+      "y": 414,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-7": {
+      "x": 366,
+      "y": 438,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane B-ISO Temp-8": {
+      "x": 366,
+      "y": 462,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane C-Current-1": {
+      "x": 426,
+      "y": 290,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-2": {
+      "x": 426,
+      "y": 314,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-3": {
+      "x": 426,
+      "y": 338,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-4": {
+      "x": 426,
+      "y": 362,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-5": {
+      "x": 426,
+      "y": 390,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-6": {
+      "x": 426,
+      "y": 414,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-7": {
+      "x": 426,
+      "y": 438,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-Current-8": {
+      "x": 426,
+      "y": 462,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-1": {
+      "x": 558,
+      "y": 290,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-2": {
+      "x": 558,
+      "y": 314,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-3": {
+      "x": 558,
+      "y": 338,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-4": {
+      "x": 558,
+      "y": 362,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-5": {
+      "x": 558,
+      "y": 389,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-6": {
+      "x": 558,
+      "y": 414,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane C-ISO Temp-7": {
+      "x": 558,
+      "y": 439,
+      "width": 39,
+      "height": 20
+    },
+    "Z-Plane C-ISO Temp-8": {
+      "x": 558,
+      "y": 462,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane D-Current-1": {
+      "x": 618,
+      "y": 290,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-2": {
+      "x": 618,
+      "y": 314,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-3": {
+      "x": 618,
+      "y": 338,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-4": {
+      "x": 618,
+      "y": 362,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-5": {
+      "x": 618,
+      "y": 390,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-6": {
+      "x": 618,
+      "y": 414,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-7": {
+      "x": 618,
+      "y": 438,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-Current-8": {
+      "x": 618,
+      "y": 462,
+      "width": 38,
+      "height": 22
+    },
+    "Z-Plane D-ISO Temp-1": {
+      "x": 750,
+      "y": 290,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane D-ISO Temp-2": {
+      "x": 750,
+      "y": 314,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane D-ISO Temp-3": {
+      "x": 750,
+      "y": 338,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane D-ISO Temp-4": {
+      "x": 750,
+      "y": 362,
+      "width": 39,
+      "height": 22
+    },
+    "Z-Plane D-ISO Temp-5": {
+      "x": 750,
+      "y": 390,
+      "width": 39,
+      "height": 21
+    },
+    "Z-Plane D-ISO Temp-6": {
+      "x": 750,
+      "y": 414,
+      "width": 39,
+      "height": 21
+    },
+    "Z-Plane D-ISO Temp-7": {
+      "x": 750,
+      "y": 438,
+      "width": 39,
+      "height": 21
+    },
+    "Z-Plane D-ISO Temp-8": {
+      "x": 750,
+      "y": 463,
+      "width": 39,
+      "height": 21
+    }
+  }
+}

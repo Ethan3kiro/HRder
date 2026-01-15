@@ -1,0 +1,503 @@
+{
+  "total_cells": 71,
+  "cell_ranges": {
+    "AZ": {
+      "min": 44.0,
+      "max": 47.0,
+      "mean": 45.75,
+      "std": 1.0897247358851685,
+      "count": 8
+    },
+    "BZ": {
+      "min": 41.0,
+      "max": 44.0,
+      "mean": 42.625,
+      "std": 1.2183492931011204,
+      "count": 8
+    },
+    "CZ": {
+      "min": 42.0,
+      "max": 46.0,
+      "mean": 44.125,
+      "std": 1.165922381636102,
+      "count": 8
+    },
+    "DZ": {
+      "min": 40.0,
+      "max": 43.0,
+      "mean": 41.5,
+      "std": 0.8660254037844386,
+      "count": 8
+    },
+    "AB": {
+      "min": 28.0,
+      "max": 30.0,
+      "mean": 29.125,
+      "std": 0.7806247497997998,
+      "count": 8
+    },
+    "CD": {
+      "min": 28.0,
+      "max": 31.0,
+      "mean": 29.625,
+      "std": 0.8569568250501305,
+      "count": 8
+    },
+    "ABCD": {
+      "min": 28.0,
+      "max": 31.0,
+      "mean": 29.25,
+      "std": 0.9682458365518543,
+      "count": 8
+    },
+    "Z-Plane A-Current-1": {
+      "min": 6.9,
+      "max": 7.0,
+      "mean": 6.9375,
+      "std": 0.04841229182759254,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-1": {
+      "min": 57.0,
+      "max": 63.0,
+      "mean": 59.75,
+      "std": 1.7853571071357126,
+      "count": 8
+    },
+    "Z-Plane A-Current-2": {
+      "min": 7.3,
+      "max": 7.3,
+      "mean": 7.3,
+      "std": 0.0,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-2": {
+      "min": 57.0,
+      "max": 68.0,
+      "mean": 59.625,
+      "std": 3.3517719194479807,
+      "count": 8
+    },
+    "Z-Plane A-Current-3": {
+      "min": 6.8,
+      "max": 6.9,
+      "mean": 6.8625,
+      "std": 0.04841229182759297,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-3": {
+      "min": 34.0,
+      "max": 39.0,
+      "mean": 35.5,
+      "std": 1.5811388300841898,
+      "count": 8
+    },
+    "Z-Plane A-Current-4": {
+      "min": 7.0,
+      "max": 7.1,
+      "mean": 7.05,
+      "std": 0.04999999999999982,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-4": {
+      "min": 38.0,
+      "max": 42.0,
+      "mean": 39.125,
+      "std": 1.3635890143294642,
+      "count": 8
+    },
+    "Z-Plane A-Current-5": {
+      "min": 7.3,
+      "max": 7.4,
+      "mean": 7.324999999999999,
+      "std": 0.04330127018922216,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-5": {
+      "min": 44.0,
+      "max": 48.0,
+      "mean": 45.5,
+      "std": 1.224744871391589,
+      "count": 8
+    },
+    "Z-Plane A-Current-6": {
+      "min": 7.1,
+      "max": 7.3,
+      "mean": 7.2125,
+      "std": 0.05994789404140899,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-6": {
+      "min": 51.0,
+      "max": 58.0,
+      "mean": 53.75,
+      "std": 2.6339134382131846,
+      "count": 8
+    },
+    "Z-Plane A-Current-7": {
+      "min": 7.1,
+      "max": 7.3,
+      "mean": 7.199999999999999,
+      "std": 0.07071067811865482,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-7": {
+      "min": 39.0,
+      "max": 44.0,
+      "mean": 41.375,
+      "std": 1.5761900266148114,
+      "count": 8
+    },
+    "Z-Plane A-Current-8": {
+      "min": 6.6,
+      "max": 6.7,
+      "mean": 6.675000000000001,
+      "std": 0.04330127018922216,
+      "count": 8
+    },
+    "Z-Plane A-ISO Temp-8": {
+      "min": 61.0,
+      "max": 71.0,
+      "mean": 63.25,
+      "std": 3.152380053229623,
+      "count": 8
+    },
+    "Z-Plane B-Current-1": {
+      "min": 7.0,
+      "max": 7.1,
+      "mean": 7.0375,
+      "std": 0.04841229182759254,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-1": {
+      "min": 50.0,
+      "max": 54.0,
+      "mean": 52.25,
+      "std": 1.3919410907075054,
+      "count": 8
+    },
+    "Z-Plane B-Current-2": {
+      "min": 7.3,
+      "max": 7.4,
+      "mean": 7.3374999999999995,
+      "std": 0.04841229182759297,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-2": {
+      "min": 39.0,
+      "max": 42.0,
+      "mean": 40.875,
+      "std": 1.0532687216470449,
+      "count": 8
+    },
+    "Z-Plane B-Current-3": {
+      "min": 7.2,
+      "max": 7.2,
+      "mean": 7.2,
+      "std": 0.0,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-3": {
+      "min": 44.0,
+      "max": 49.0,
+      "mean": 46.625,
+      "std": 1.5761900266148114,
+      "count": 8
+    },
+    "Z-Plane B-Current-4": {
+      "min": 6.8,
+      "max": 6.9,
+      "mean": 6.875,
+      "std": 0.04330127018922216,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-4": {
+      "min": 47.0,
+      "max": 51.0,
+      "mean": 48.875,
+      "std": 1.165922381636102,
+      "count": 8
+    },
+    "Z-Plane B-Current-5": {
+      "min": 7.1,
+      "max": 7.2,
+      "mean": 7.1875,
+      "std": 0.03307189138830756,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-5": {
+      "min": 60.0,
+      "max": 66.0,
+      "mean": 62.75,
+      "std": 1.7853571071357126,
+      "count": 8
+    },
+    "Z-Plane B-Current-6": {
+      "min": 7.6,
+      "max": 7.7,
+      "mean": 7.625,
+      "std": 0.04330127018922216,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-6": {
+      "min": 42.0,
+      "max": 46.0,
+      "mean": 44.125,
+      "std": 1.2686114456365274,
+      "count": 8
+    },
+    "Z-Plane B-Current-7": {
+      "min": 7.4,
+      "max": 7.5,
+      "mean": 7.4625,
+      "std": 0.04841229182759254,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-7": {
+      "min": 39.0,
+      "max": 44.0,
+      "mean": 41.5,
+      "std": 1.6583123951777,
+      "count": 8
+    },
+    "Z-Plane B-Current-8": {
+      "min": 6.8,
+      "max": 7.0,
+      "mean": 6.9,
+      "std": 0.050000000000000044,
+      "count": 8
+    },
+    "Z-Plane B-ISO Temp-8": {
+      "min": 37.0,
+      "max": 42.0,
+      "mean": 39.375,
+      "std": 1.5761900266148114,
+      "count": 8
+    },
+    "Z-Plane C-Current-1": {
+      "min": 7.0,
+      "max": 7.2,
+      "mean": 7.1,
+      "std": 0.10000000000000009,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-1": {
+      "min": 36.0,
+      "max": 40.0,
+      "mean": 37.875,
+      "std": 1.4523687548277813,
+      "count": 8
+    },
+    "Z-Plane C-Current-2": {
+      "min": 6.9,
+      "max": 7.2,
+      "mean": 7.0125,
+      "std": 0.11659223816360995,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-2": {
+      "min": 40.0,
+      "max": 44.0,
+      "mean": 41.625,
+      "std": 1.5761900266148114,
+      "count": 8
+    },
+    "Z-Plane C-Current-3": {
+      "min": 7.1,
+      "max": 7.3,
+      "mean": 7.225,
+      "std": 0.08291561975888503,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-3": {
+      "min": 32.0,
+      "max": 35.0,
+      "mean": 34.0,
+      "std": 1.118033988749895,
+      "count": 8
+    },
+    "Z-Plane C-Current-4": {
+      "min": 7.1,
+      "max": 7.4,
+      "mean": 7.225,
+      "std": 0.09682458365518556,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-4": {
+      "min": 37.0,
+      "max": 41.0,
+      "mean": 39.5,
+      "std": 1.5811388300841898,
+      "count": 8
+    },
+    "Z-Plane C-Current-5": {
+      "min": 7.2,
+      "max": 7.4,
+      "mean": 7.3375,
+      "std": 0.06959705453537543,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-5": {
+      "min": 35.0,
+      "max": 39.0,
+      "mean": 37.25,
+      "std": 1.3919410907075054,
+      "count": 8
+    },
+    "Z-Plane C-Current-6": {
+      "min": 6.9,
+      "max": 7.7,
+      "mean": 7.2875000000000005,
+      "std": 0.34072532926097504,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-6": {
+      "min": 45.0,
+      "max": 75.0,
+      "mean": 58.375,
+      "std": 11.531885145109623,
+      "count": 8
+    },
+    "Z-Plane C-Current-7": {
+      "min": 7.7,
+      "max": 7.8,
+      "mean": 7.725,
+      "std": 0.04330127018922178,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-7": {
+      "min": 36.0,
+      "max": 41.0,
+      "mean": 38.25,
+      "std": 1.713913650100261,
+      "count": 8
+    },
+    "Z-Plane C-Current-8": {
+      "min": 7.3,
+      "max": 7.6,
+      "mean": 7.425000000000001,
+      "std": 0.08291561975888487,
+      "count": 8
+    },
+    "Z-Plane C-ISO Temp-8": {
+      "min": 37.0,
+      "max": 41.0,
+      "mean": 39.25,
+      "std": 1.3919410907075054,
+      "count": 8
+    },
+    "Z-Plane D-Current-1": {
+      "min": 7.0,
+      "max": 7.1,
+      "mean": 7.0375,
+      "std": 0.04841229182759254,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-1": {
+      "min": 35.0,
+      "max": 39.0,
+      "mean": 37.125,
+      "std": 1.2686114456365274,
+      "count": 8
+    },
+    "Z-Plane D-Current-2": {
+      "min": 7.2,
+      "max": 7.4,
+      "mean": 7.2875000000000005,
+      "std": 0.05994789404140899,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-2": {
+      "min": 37.0,
+      "max": 41.0,
+      "mean": 39.0,
+      "std": 1.3228756555322954,
+      "count": 8
+    },
+    "Z-Plane D-Current-3": {
+      "min": 7.2,
+      "max": 7.4,
+      "mean": 7.3,
+      "std": 0.050000000000000044,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-3": {
+      "min": 38.0,
+      "max": 41.0,
+      "mean": 39.25,
+      "std": 1.1989578808281798,
+      "count": 8
+    },
+    "Z-Plane D-Current-4": {
+      "min": 6.9,
+      "max": 7.0,
+      "mean": 6.95,
+      "std": 0.04999999999999982,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-4": {
+      "min": 36.0,
+      "max": 39.0,
+      "mean": 37.375,
+      "std": 1.2183492931011204,
+      "count": 8
+    },
+    "Z-Plane D-Current-5": {
+      "min": 7.1,
+      "max": 7.2,
+      "mean": 7.1375,
+      "std": 0.04841229182759297,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-5": {
+      "min": 40.0,
+      "max": 50.0,
+      "mean": 45.125,
+      "std": 3.2572035551988456,
+      "count": 8
+    },
+    "Z-Plane D-Current-6": {
+      "min": 7.2,
+      "max": 7.5,
+      "mean": 7.362500000000001,
+      "std": 0.09921567416492218,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-6": {
+      "min": 43.0,
+      "max": 52.0,
+      "mean": 48.25,
+      "std": 2.7726341266023544,
+      "count": 8
+    },
+    "Z-Plane D-Current-7": {
+      "min": 7.4,
+      "max": 7.5,
+      "mean": 7.4125000000000005,
+      "std": 0.03307189138830727,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-7": {
+      "min": 39.0,
+      "max": 42.0,
+      "mean": 40.875,
+      "std": 1.165922381636102,
+      "count": 8
+    },
+    "Z-Plane D-Current-8": {
+      "min": 7.0,
+      "max": 7.1,
+      "mean": 7.0874999999999995,
+      "std": 0.03307189138830727,
+      "count": 8
+    },
+    "Z-Plane D-ISO Temp-8": {
+      "min": 39.0,
+      "max": 43.0,
+      "mean": 41.5,
+      "std": 1.4142135623730951,
+      "count": 8
+    }
+  },
+  "common_values": {}
+}

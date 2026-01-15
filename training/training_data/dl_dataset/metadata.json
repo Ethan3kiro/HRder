@@ -1,0 +1,11 @@
+{
+  "total_samples": 142,
+  "train_samples": 1130,
+  "val_samples": 29,
+  "augmentation_factor": 10,
+  "image_size": [
+    28,
+    28
+  ],
+  "num_classes": 27
+}
