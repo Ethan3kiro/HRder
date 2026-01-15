@@ -4,14 +4,13 @@
 
 ### 第一步：安装依赖
 
-**自动安装（推荐）**:
+**Windows 用户**:
 
-Windows 用户双击运行：
-```
-install_dependencies.bat
-```
+双击运行 `install_simple.bat`
 
-macOS/Linux 用户运行：
+**macOS/Linux 用户**:
+
+运行：
 ```bash
 ./install_dependencies.sh
 ```
@@ -19,13 +18,15 @@ macOS/Linux 用户运行：
 ### 第二步：启动应用
 
 **Windows**:
-```
-start_gui.bat
+
+双击运行 `start_gui.bat`，或运行：
+```cmd
+py main_gui.py
 ```
 
 **macOS/Linux**:
 ```bash
-./start_gui.sh
+python main_gui.py
 ```
 
 ### 第三步：开始使用
@@ -57,7 +58,8 @@ start_gui.bat
 
 **Q: 安装依赖失败？**
 - 检查 Python 版本是否 3.9+
-- 尝试手动安装：`pip install -r requirements.txt -r requirements-gui.txt`
+- Windows 用户尝试：`py -m pip install -r requirements.txt -r requirements-gui.txt`
+- macOS/Linux 用户尝试：`pip install -r requirements.txt -r requirements-gui.txt`
 - 参考 [DEPENDENCIES.md](DEPENDENCIES.md) 详细说明
 
 **Q: 深度学习模型不可用？**

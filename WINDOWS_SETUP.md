@@ -41,16 +41,13 @@ cd harris-reader
 
 ### 自动安装（推荐）
 
-双击运行 `install_dependencies.bat`，或在命令提示符中运行：
+双击运行 `install_simple.bat`，或在命令提示符中运行：
 
 ```cmd
-install_dependencies.bat
+install_simple.bat
 ```
 
-脚本会自动：
-- 查找 Python（支持多种安装方式）
-- 安装所有必需的依赖包
-- 验证安装结果
+这个脚本会自动安装所有必需的依赖包。
 
 ### 手动安装（如果自动安装失败）
 

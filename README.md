@@ -28,59 +28,36 @@
 
 ### 1. 安装依赖
 
-#### 方法 1: 自动安装（推荐）
+### 1. 安装依赖
 
-运行自动安装脚本，一键安装所有依赖：
+**Windows 用户（推荐）**:
 
-**Windows**:
+双击运行 `install_simple.bat`，或在命令提示符中运行：
 ```cmd
-install_dependencies.bat
+install_simple.bat
 ```
 
-**Windows**:
-```cmd
-install_dependencies.bat
-```
-
-**macOS/Linux**:
+**macOS/Linux 用户**:
 ```bash
 ./install_dependencies.sh
 ```
 
-脚本会自动：
-- 检查 Python 版本（支持多种 Python 安装方式）
-- 安装所有 Python 依赖包
-- 检查 Tesseract OCR 是否安装
-- 验证安装结果
+**手动安装（如果脚本失败）**:
 
-> **Windows 用户注意**：脚本会自动查找 Python，支持：
-> - 标准 Python 安装
-> - Microsoft Store 安装
-> - py 启动器
-> - 自定义路径安装
-
-#### 方法 2: 手动安装
-
-如果自动安装失败，可以手动安装：
-
-**Windows**:
+Windows:
 ```cmd
 py -m pip install -r requirements.txt
 py -m pip install -r requirements-gui.txt
 ```
 
-**macOS/Linux**:
+macOS/Linux:
 ```bash
 pip install -r requirements.txt
 pip install -r requirements-gui.txt
 ```
 
-**安装训练依赖（可选）**:
-
-如果需要训练深度学习模型，参见 [INSTALL_DL_DEPENDENCIES.md](INSTALL_DL_DEPENDENCIES.md)
-
-**安装 Tesseract OCR**:
-- **Windows**: 下载并安装 https://github.com/UB-Mannheim/tesseract/wiki
+**安装 Tesseract OCR（可选）**:
+- **Windows**: https://github.com/UB-Mannheim/tesseract/wiki
 - **macOS**: `brew install tesseract`
 - **Linux**: `sudo apt install tesseract-ocr`
 
