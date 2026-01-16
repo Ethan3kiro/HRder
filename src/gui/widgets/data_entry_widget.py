@@ -96,13 +96,16 @@ class DataEntryWidget(QWidget):
         # 辅助录入按钮（使用深度学习模型）
         self.assist_btn = QPushButton("🤖 辅助录入")
         self.assist_btn.clicked.connect(self.start_assisted_entry)
-        self.assist_btn.setToolTip("使用深度学习模型辅助识别数字，识别结果仅供参考")
-        # 只有在深度学习模型可用时才启用
+        
+        # 检查深度学习模型是否可用
         if self.dl_ocr_extractor:
             self.assist_btn.setEnabled(True)
+            self.assist_btn.setToolTip("使用深度学习模型辅助识别数字，识别结果仅供参考")
         else:
             self.assist_btn.setEnabled(False)
-            self.assist_btn.setToolTip("深度学习模型不可用")
+            # 提供更详细的不可用原因
+            tooltip = self._get_dl_unavailable_reason()
+            self.assist_btn.setToolTip(tooltip)
         mode_row.addWidget(self.assist_btn)
         
         # 手动录入按钮
@@ -220,6 +223,38 @@ class DataEntryWidget(QWidget):
         
         # 加载设备列表
         self.load_devices()
+    
+    def _get_dl_unavailable_reason(self):
+        """获取深度学习模型不可用的原因"""
+        from pathlib import Path
+        
+        # 检查 PyTorch 是否安装
+        try:
+            import torch
+            torch_available = True
+        except ImportError:
+            return ("深度学习模型不可用：PyTorch 未安装\n\n"
+                   "请安装 PyTorch：\n"
+                   "pip install torch torchvision\n\n"
+                   "或参考 TRAINING.md 文档")
+        
+        # 检查模型文件是否存在
+        model_path = Path("models/digit_ocr_model.pth")
+        if not model_path.exists():
+            return ("深度学习模型不可用：模型文件不存在\n\n"
+                   "请先训练模型：\n"
+                   "python training/tools/train_dl_model.py\n\n"
+                   "或参考 QUICK_START_DL_TRAINING.md 文档")
+        
+        # 检查坐标文件是否存在
+        coordinates_path = Path("models/coordinates.json")
+        if not coordinates_path.exists():
+            return ("深度学习模型不可用：坐标文件不存在\n\n"
+                   "请先提取坐标：\n"
+                   "python training/tools/extract_coordinates_interactive.py\n\n"
+                   "或参考 QUICK_START_DL_TRAINING.md 文档")
+        
+        return "深度学习模型不可用：未知原因"
     
     def load_devices(self):
         """加载设备列表"""
