@@ -152,63 +152,21 @@ python training/tools/train_dl_model.py
 
 ## 常见问题
 
-### 1. pip 安装失败
+### PyTorch 安装失败
+提示 "No matching distribution found for torchvision"
 
-**问题：** pip 安装依赖时出错
-
-**解决方案：**
+**解决方案**：
 ```bash
-# 升级 pip
-python -m pip install --upgrade pip
-
-# 使用国内镜像源
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-
-### 2. PyTorch 安装失败
-
-**问题：** 提示 "No matching distribution found for torchvision"
-
-**解决方案：**
-```bash
-# 使用官方 CPU 版本源
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-
-# 或访问官网获取最新安装命令
-# https://pytorch.org/get-started/locally/
 ```
 
-### 3. Tesseract OCR 未找到
+### 辅助录入按钮无法点击
+将鼠标悬停在按钮上查看具体原因，然后：
+1. 安装 PyTorch（见上文）
+2. 训练模型（参考 `QUICK_START_DL_TRAINING.md`）
 
-**问题：** 运行时提示找不到 Tesseract
-
-**解决方案：**
-1. 确认已安装 Tesseract OCR
-2. 添加到系统 PATH：
-   - 右键"此电脑" → "属性" → "高级系统设置"
-   - "环境变量" → 编辑 "Path"
-   - 添加：`C:\Program Files\Tesseract-OCR`
-3. 重启命令提示符
-
-### 4. 辅助录入按钮无法点击
-
-**原因：** 深度学习模型不可用
-
-**解决方案：**
-1. 将鼠标悬停在按钮上查看具体原因
-2. 根据提示安装 PyTorch 或训练模型
-3. 参考 `QUICK_START_DL_TRAINING.md` 文档
-
-### 5. 中文显示乱码
-
-**解决方案：**
-```bash
-# 设置环境变量
-set PYTHONIOENCODING=utf-8
-
-# 然后运行程序
-python main_gui.py
-```
+### 更多问题
+查看 [故障排除文档](TROUBLESHOOTING_WINDOWS.md) 获取完整的问题解决方案。
 
 ---
 

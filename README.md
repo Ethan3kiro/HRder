@@ -24,81 +24,37 @@
 
 ## 快速开始
 
-> 💡 **5 分钟快速上手**: 参见 [QUICK_START.md](QUICK_START.md)
+> 💡 **新手？** 查看 [快速开始指南](QUICK_START.md) 5分钟上手  
+> 🪟 **Windows用户？** 查看 [Windows安装指南](WINDOWS_SETUP.md)
 
-### 1. 安装依赖
+### 安装
 
-### 1. 安装依赖
-
-**Windows 用户**:
-
-双击运行 `install_simple.bat`，或在命令提示符中运行：
-```cmd
-install_simple.bat
-```
-
-**macOS/Linux 用户**:
 ```bash
+# Windows
+install_simple.bat
+
+# macOS/Linux
 ./install_dependencies.sh
 ```
 
-**手动安装（推荐）**:
+### 启动
 
-Windows:
-```cmd
-py -m pip install -r requirements.txt
-py -m pip install -r requirements-gui.txt
-```在命令提示符中运行以下命令安装 PyQt6：
-py -m pip install PyQt6 PyQt6-Charts
-```
-
-macOS/Linux:
 ```bash
-pip install -r requirements.txt
-pip install -r requirements-gui.txt
-```
-
-**安装 Tesseract OCR（可选）**:
-- **Windows**: https://github.com/UB-Mannheim/tesseract/wiki
-- **macOS**: `brew install tesseract`
-- **Linux**: `sudo apt install tesseract-ocr`
-
-详细说明参见 [DEPENDENCIES.md](DEPENDENCIES.md)
-
-### 2. 启动应用
-
-**图形界面（推荐）**:
-
-**Windows**:
-```cmd
+# Windows
 start_gui.bat
-```
-或者：
-```cmd
-py main_gui.py
-```
 
-**macOS/Linux**:
-```bash
+# macOS/Linux
 python main_gui.py
 ```
 
-**命令行界面**:
-```bash
-python main.py --help
-```
+### 使用
 
-### 3. 使用流程
+1. 添加设备
+2. 录入数据（支持OCR/深度学习/手动）
+3. 查看分析和趋势
+4. 导出数据
 
-1. **添加设备**: 在"设备管理"页面添加发射机设备
-2. **数据录入**: 
-   - 选择截图文件
-   - 选择是否使用辅助模型
-   - 点击"OCR 识别"
-   - 参考识别结果，手动填写/修正数据
-   - 保存到数据库
-3. **数据分析**: 在"趋势分析"和"对比分析"页面查看数据
-4. **数据导出**: 在"数据管理"页面导出数据
+详细说明请查看 [快速开始指南](QUICK_START.md)
 
 ## 项目结构
 
@@ -228,20 +184,16 @@ HarrisReader/
 
 ## 常见问题
 
-### OCR 识别失败
-- 确保已安装 Tesseract OCR
-- 检查图像质量是否清晰
-- 尝试使用深度学习模型或手动输入
+### 安装问题
+- **依赖安装失败**: 查看 [WINDOWS_SETUP.md](WINDOWS_SETUP.md) 或 [DEPENDENCIES.md](DEPENDENCIES.md)
+- **Tesseract OCR 未找到**: 安装 Tesseract 或使用手动录入
 
-### 深度学习模型不可用
-- 确保 `models/digit_ocr_model.pth` 文件存在
-- 确保 `models/coordinates.json` 文件存在
-- 确保已安装 PyTorch: `pip install torch`
+### 功能问题
+- **辅助录入按钮无法点击**: 需要安装 PyTorch 和训练模型，详见 [WINDOWS_SETUP.md](WINDOWS_SETUP.md#安装深度学习支持)
+- **OCR 识别失败**: 使用深度学习模型或手动录入
+- **数据保存失败**: 检查月份格式（YYYY-MM）和设备选择
 
-### 数据保存失败
-- 检查数据库文件权限
-- 确保月份格式正确（YYYY-MM）
-- 确保已选择设备
+更多问题请查看 [故障排除文档](TROUBLESHOOTING_WINDOWS.md)
 
 ## 技术栈
 

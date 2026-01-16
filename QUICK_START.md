@@ -56,26 +56,21 @@ python main_gui.py
 
 ## 常见问题
 
-**Q: 安装依赖失败？**
-- 检查 Python 版本是否 3.9+
-- Windows 用户尝试：`py -m pip install -r requirements.txt -r requirements-gui.txt`
-- macOS/Linux 用户尝试：`pip install -r requirements.txt -r requirements-gui.txt`
-- 参考 [DEPENDENCIES.md](DEPENDENCIES.md) 详细说明
+**Q: 安装失败？**  
+→ 查看 [WINDOWS_SETUP.md](WINDOWS_SETUP.md) 或 [TROUBLESHOOTING_WINDOWS.md](TROUBLESHOOTING_WINDOWS.md)
 
-**Q: 深度学习模型不可用？**
-- 确保 `models/digit_ocr_model.pth` 文件存在
-- 确保 `models/coordinates.json` 文件存在
-- 安装 PyTorch：`pip install torch`
+**Q: 辅助录入按钮无法点击？**  
+→ 需要安装 PyTorch 和训练模型，详见 [WINDOWS_SETUP.md](WINDOWS_SETUP.md#安装深度学习支持)
 
-**Q: OCR 识别失败？**
-- 确保 Tesseract OCR 已安装
-- 尝试使用深度学习模型或手动输入
+**Q: OCR 识别失败？**  
+→ 使用深度学习模型或手动输入
 
 ## 下一步
 
-- 详细使用说明：[README.md](README.md)
-- 依赖安装指南：[DEPENDENCIES.md](DEPENDENCIES.md)
-- 模型训练指南：[TRAINING.md](TRAINING.md)
+- 详细功能说明：[README.md](README.md)
+- Windows 安装：[WINDOWS_SETUP.md](WINDOWS_SETUP.md)
+- 模型训练：[QUICK_START_DL_TRAINING.md](QUICK_START_DL_TRAINING.md)
+- 故障排除：[TROUBLESHOOTING_WINDOWS.md](TROUBLESHOOTING_WINDOWS.md)
 
 ---
 
