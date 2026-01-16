@@ -14,6 +14,37 @@ from pathlib import Path
 import pandas as pd
 
 
+class OCRWorker(QThread):
+    """OCR 处理工作线程"""
+    
+    finished = pyqtSignal(object)  # 完成信号，传递 DataFrame
+    error = pyqtSignal(str)  # 错误信号
+    progress = pyqtSignal(str)  # 进度信号
+    
+    def __init__(self, ocr_extractor, image_path):
+        super().__init__()
+        self.ocr_extractor = ocr_extractor
+        self.image_path = image_path
+    
+    def run(self):
+        """执行 OCR 识别"""
+        try:
+            self.progress.emit("正在读取图像...")
+            
+            if not self.ocr_extractor:
+                self.error.emit("OCR 提取器未初始化")
+                return
+            
+            self.progress.emit("正在进行 OCR 识别...")
+            result = self.ocr_extractor.extract_from_image(Path(self.image_path))
+            
+            self.progress.emit("识别完成！")
+            self.finished.emit(result)
+            
+        except Exception as e:
+            self.error.emit(f"OCR 识别失败：{str(e)}")
+
+
 class FullscreenDataEntryWindow(QWidget):
     """全屏数据录入窗口"""
     
@@ -385,13 +416,16 @@ class FullscreenDataEntryWindow(QWidget):
         self.progress_bar.setRange(0, 0)
         self.progress_bar.setFormat("正在使用深度学习模型识别...")
         
-        # 创建并启动工作线程
-        from .data_entry_widget import DLOCRWorker
-        
-        self.ocr_worker = DLOCRWorker(self.dl_ocr_extractor, file_path)
+        # 创建并启动工作线程 - 使用 OCRWorker 类
+        self.ocr_worker = OCRWorker(self.dl_ocr_extractor, file_path)
         self.ocr_worker.finished.connect(self.on_assisted_entry_finished)
         self.ocr_worker.error.connect(self.on_assisted_entry_error)
+        self.ocr_worker.progress.connect(self.on_assisted_entry_progress)
         self.ocr_worker.start()
+    
+    def on_assisted_entry_progress(self, message):
+        """辅助录入进度更新"""
+        self.progress_bar.setFormat(message)
     
     def on_assisted_entry_finished(self, data):
         """辅助录入完成"""
