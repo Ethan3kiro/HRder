@@ -176,11 +176,19 @@ class DataEntryWidget(QWidget):
         image_scroll.setWidget(self.image_label)
         preview_layout.addWidget(image_scroll)
         
-        # 辅助识别结果提示（仅在辅助录入模式下显示）
+        # 辅助识别结果提示（仅在辅助录入模式下显示）- 使用滚动区域
+        assist_scroll = QScrollArea()
+        assist_scroll.setWidgetResizable(True)
+        assist_scroll.setMaximumHeight(150)  # 限制最大高度
+        assist_scroll.setVisible(False)  # 默认隐藏
+        
         self.assist_result_label = QLabel("")
         self.assist_result_label.setWordWrap(True)
-        self.assist_result_label.setVisible(False)  # 默认隐藏
-        preview_layout.addWidget(self.assist_result_label)
+        self.assist_result_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        
+        assist_scroll.setWidget(self.assist_result_label)
+        self.assist_result_scroll = assist_scroll  # 保存引用以便控制显示/隐藏
+        preview_layout.addWidget(assist_scroll)
         
         preview_group.setLayout(preview_layout)
         layout.addWidget(preview_group)
@@ -378,7 +386,7 @@ class DataEntryWidget(QWidget):
         self.save_btn.setEnabled(True)
         
         # 隐藏辅助识别结果
-        self.assist_result_label.setVisible(False)
+        self.assist_result_scroll.setVisible(False)
         
         QMessageBox.information(
             self, "手动录入", 
@@ -408,14 +416,14 @@ class DataEntryWidget(QWidget):
                 "color: #000; padding: 10px; background-color: #fff9c4; "
                 "border: 2px solid #fbc02d; border-radius: 4px; font-family: monospace;"
             )
-            self.assist_result_label.setVisible(True)
+            self.assist_result_scroll.setVisible(True)
         else:
             self.assist_result_label.setText("⚠️ 未识别到任何数据，请手动填写所有数据")
             self.assist_result_label.setStyleSheet(
                 "color: #666; padding: 10px; background-color: #fff3e0; "
                 "border: 1px solid #ff9800; border-radius: 4px;"
             )
-            self.assist_result_label.setVisible(True)
+            self.assist_result_scroll.setVisible(True)
         
         # 显示空白模板供用户填写
         self.current_data = pd.DataFrame()  # 不自动填充，让用户参考识别结果手动填写
@@ -654,7 +662,7 @@ class DataEntryWidget(QWidget):
         self.image_label.setStyleSheet("color: #999; padding: 20px; background-color: #f5f5f5; border: 1px dashed #ccc;")
         
         # 隐藏辅助识别结果
-        self.assist_result_label.setVisible(False)
+        self.assist_result_scroll.setVisible(False)
         self.assist_result_label.setText("")
     
     def enter_fullscreen_mode(self):

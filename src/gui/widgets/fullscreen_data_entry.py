@@ -38,6 +38,7 @@ class FullscreenDataEntryWindow(QWidget):
         self.file_path_edit = None
         self.image_label = None
         self.assist_result_label = None
+        self.assist_result_scroll = None  # 辅助识别结果滚动区域
         self.data_table = None
         self.device_combo = None
         self.month_edit = None
@@ -207,12 +208,19 @@ class FullscreenDataEntryWindow(QWidget):
         image_scroll.setWidget(self.image_label)
         layout.addWidget(image_scroll)
         
-        # 辅助识别结果提示（仅在辅助录入模式下显示）
+        # 辅助识别结果提示（仅在辅助录入模式下显示）- 使用滚动区域
+        assist_scroll = QScrollArea()
+        assist_scroll.setWidgetResizable(True)
+        assist_scroll.setMaximumHeight(150)  # 限制最大高度
+        assist_scroll.setVisible(False)  # 默认隐藏
+        
         self.assist_result_label = QLabel("")
         self.assist_result_label.setWordWrap(True)
-        self.assist_result_label.setVisible(False)  # 默认隐藏
-        self.assist_result_label.setMaximumHeight(150)
-        layout.addWidget(self.assist_result_label)
+        self.assist_result_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        
+        assist_scroll.setWidget(self.assist_result_label)
+        self.assist_result_scroll = assist_scroll  # 保存引用以便控制显示/隐藏
+        layout.addWidget(assist_scroll)
         
         return panel
     
@@ -395,7 +403,7 @@ class FullscreenDataEntryWindow(QWidget):
         self.save_btn.setEnabled(True)
         
         # 显示辅助识别结果提示
-        self.assist_result_label.setVisible(True)
+        self.assist_result_scroll.setVisible(True)
         
         if data is not None and not data.empty:
             self.assist_result_label.setText(
@@ -427,7 +435,7 @@ class FullscreenDataEntryWindow(QWidget):
             return
         
         # 隐藏辅助识别结果提示
-        self.assist_result_label.setVisible(False)
+        self.assist_result_scroll.setVisible(False)
         
         # 显示空白模板
         self.current_data = pd.DataFrame()
