@@ -1,0 +1,66 @@
+{
+  "_comment": "API OCR 配置文件示例 - 复制为 api_config.json 并填入您的配置",
+  
+  "_使用说明": {
+    "1": "将此文件复制为 api_config.json",
+    "2": "选择一个 provider 并填入相应的配置",
+    "3": "删除不需要的示例配置"
+  },
+  
+  "provider": "openai",
+  "api_key": "your-api-key-here",
+  "api_url": "",
+  "extra_params": {
+    "model": "gpt-4-vision-preview",
+    "max_tokens": 2000
+  },
+  
+  "_配置示例": {
+    "OpenAI_GPT4_Vision": {
+      "说明": "使用 OpenAI GPT-4 Vision API 进行图像识别",
+      "provider": "openai",
+      "api_key": "sk-your-openai-api-key",
+      "api_url": "https://api.openai.com/v1/chat/completions",
+      "extra_params": {
+        "model": "gpt-4-vision-preview",
+        "max_tokens": 2000
+      }
+    },
+    
+    "百度OCR": {
+      "说明": "使用百度 OCR API",
+      "provider": "baidu",
+      "api_key": "your-baidu-access-token",
+      "api_url": "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic"
+    },
+    
+    "阿里云OCR": {
+      "说明": "使用阿里云 OCR API",
+      "provider": "aliyun",
+      "api_key": "your-aliyun-appcode",
+      "api_url": "https://ocrapi-advanced.cn-shanghai.aliyuncs.com"
+    },
+    
+    "自定义API": {
+      "说明": "使用自定义 API 端点",
+      "provider": "custom",
+      "api_key": "your-custom-api-key",
+      "api_url": "https://your-api.com/ocr",
+      "extra_params": {
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Custom-Header": "value"
+        },
+        "auth_header": "Authorization",
+        "auth_prefix": "Bearer",
+        "payload_template": {
+          "image": "{{image}}",
+          "format": "json",
+          "language": "zh-CN"
+        },
+        "data_path": "result.data",
+        "timeout": 30
+      }
+    }
+  }
+}

@@ -1,0 +1,357 @@
+[
+  {
+    "item_name":"AZ",
+    "value":42.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"BZ",
+    "value":50.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"CZ",
+    "value":51.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"DZ",
+    "value":56.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"AB",
+    "value":30.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"CD",
+    "value":40.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"ABCD",
+    "value":29.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-1",
+    "value":7.2,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-1",
+    "value":48.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-2",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-2",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-3",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-3",
+    "value":46.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-4",
+    "value":7.2,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-4",
+    "value":42.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-5",
+    "value":7.3,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-5",
+    "value":46.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-6",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-6",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-7",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-7",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane A-Current-8",
+    "value":7.1,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane A-ISO Temp-8",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-1",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-1",
+    "value":49.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-2",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-2",
+    "value":51.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-3",
+    "value":7.9,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-3",
+    "value":49.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-4",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-4",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-5",
+    "value":7.4,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-5",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-6",
+    "value":7.6,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-6",
+    "value":50.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-7",
+    "value":7.4,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-7",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane B-Current-8",
+    "value":7.5,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane B-ISO Temp-8",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-1",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-1",
+    "value":49.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-2",
+    "value":8.1,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-2",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-3",
+    "value":8.0,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-3",
+    "value":46.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-4",
+    "value":7.6,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-4",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-5",
+    "value":7.3,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-5",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-6",
+    "value":8.1,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-6",
+    "value":48.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-7",
+    "value":8.1,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-7",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane C-Current-8",
+    "value":8.2,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane C-ISO Temp-8",
+    "value":45.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-1",
+    "value":8.1,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-1",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-2",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-2",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-3",
+    "value":8.2,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-3",
+    "value":47.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-4",
+    "value":7.6,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-4",
+    "value":44.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-5",
+    "value":7.6,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-5",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-6",
+    "value":7.8,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-6",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-7",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-7",
+    "value":43.0,
+    "unit":"°C"
+  },
+  {
+    "item_name":"Z-Plane D-Current-8",
+    "value":7.7,
+    "unit":"A"
+  },
+  {
+    "item_name":"Z-Plane D-ISO Temp-8",
+    "value":43.0,
+    "unit":"°C"
+  }
+]

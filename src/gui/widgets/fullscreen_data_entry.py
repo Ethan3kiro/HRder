@@ -52,18 +52,22 @@ class FullscreenDataEntryWindow(QWidget):
     closed = pyqtSignal()  # 窗口关闭信号
     
     def __init__(self, database, device_manager, settings_manager, 
-                 image_path=None, dl_ocr_extractor=None, parent=None):
+                 image_path=None, dl_ocr_extractor=None, recognized_data=None, parent=None):
         super().__init__(parent)
         
         # 初始化所有属性
         self.dl_ocr_extractor = dl_ocr_extractor
+        self.api_ocr_extractor = None  # API OCR 提取器
         self.database = database
         self.device_manager = device_manager
         self.settings_manager = settings_manager
         
-        self.current_data = None
+        self.current_data = recognized_data  # 接收已识别的数据
         self.ocr_worker = None
         self.current_image_path = image_path
+        
+        # 尝试加载 API 配置
+        self._load_api_config()
         
         # 初始化UI组件引用（避免在init_ui之前访问）
         self.file_path_edit = None
@@ -84,6 +88,21 @@ class FullscreenDataEntryWindow(QWidget):
             # 如果提供了图像路径，自动加载
             if image_path:
                 self.load_image_preview(image_path)
+            
+            # 如果有已识别的数据，自动显示
+            if recognized_data is not None and not recognized_data.empty:
+                self.display_data_with_template(recognized_data)
+                self.save_btn.setEnabled(True)
+                
+                # 显示识别结果提示
+                self.assist_result_scroll.setVisible(True)
+                self.assist_result_label.setText(
+                    f"<div style='padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;'>"
+                    f"<b>✓ 已加载识别结果</b><br>"
+                    f"识别到 {len(recognized_data)} 个数据项<br>"
+                    f"<span style='color: #666;'>数据来自普通模式的识别结果</span>"
+                    f"</div>"
+                )
                 
         except Exception as e:
             import traceback
@@ -178,6 +197,18 @@ class FullscreenDataEntryWindow(QWidget):
             tooltip = self._get_dl_unavailable_reason()
             self.assist_btn.setToolTip(tooltip)
         toolbar_layout.addWidget(self.assist_btn)
+        
+        # API 识别按钮
+        self.api_btn = QPushButton("🌐 API")
+        self.api_btn.clicked.connect(self.start_api_entry)
+        if self.api_ocr_extractor:
+            self.api_btn.setEnabled(True)
+            provider = self.api_ocr_extractor.config.provider.upper()
+            self.api_btn.setToolTip(f"使用 {provider} API 识别")
+        else:
+            self.api_btn.setEnabled(False)
+            self.api_btn.setToolTip("API 识别不可用\n请配置 config/api_config.json")
+        toolbar_layout.addWidget(self.api_btn)
         
         self.manual_btn = QPushButton("✍️ 手动录入")
         self.manual_btn.clicked.connect(self.start_manual_entry)
@@ -317,6 +348,23 @@ class FullscreenDataEntryWindow(QWidget):
                    "或参考 QUICK_START_DL_TRAINING.md 文档")
         
         return "深度学习模型不可用：未知原因"
+    
+    def _load_api_config(self):
+        """加载 API 配置"""
+        try:
+            from src.api_ocr_extractor import load_api_config_from_file, APIOCRExtractor
+            from pathlib import Path
+            
+            config_path = Path('config/api_config.json')
+            api_config = load_api_config_from_file(config_path)
+            
+            if api_config:
+                self.api_ocr_extractor = APIOCRExtractor(api_config)
+            else:
+                self.api_ocr_extractor = None
+                
+        except Exception as e:
+            self.api_ocr_extractor = None
     
     def load_devices(self):
         """加载设备列表"""
@@ -480,6 +528,66 @@ class FullscreenDataEntryWindow(QWidget):
             self, "手动录入", 
             "✓ 已准备好空白表格\n\n请对照左侧截图手动填写所有数据"
         )
+    
+    def start_api_entry(self):
+        """开始 API 识别"""
+        file_path = self.file_path_edit.text()
+        
+        if not file_path:
+            QMessageBox.warning(self, "提示", "请先选择截图文件")
+            return
+        
+        if not Path(file_path).exists():
+            QMessageBox.critical(self, "错误", "文件不存在")
+            return
+        
+        if not self.api_ocr_extractor:
+            QMessageBox.critical(
+                self, "错误",
+                "API 识别不可用\n\n请配置 config/api_config.json"
+            )
+            return
+        
+        # 显示进度条
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)
+        self.progress_bar.setFormat("正在调用 API 识别...")
+        
+        # 创建并启动工作线程
+        self.ocr_worker = OCRWorker(self.api_ocr_extractor, file_path)
+        self.ocr_worker.finished.connect(self.on_api_entry_finished)
+        self.ocr_worker.error.connect(self.on_assisted_entry_error)
+        self.ocr_worker.progress.connect(self.on_assisted_entry_progress)
+        self.ocr_worker.start()
+    
+    def on_api_entry_finished(self, data):
+        """API 识别完成"""
+        self.progress_bar.setVisible(False)
+        
+        # 显示模板并填充识别结果
+        self.current_data = data if data is not None else pd.DataFrame()
+        self.display_data_with_template(self.current_data)
+        self.save_btn.setEnabled(True)
+        
+        # 显示识别结果提示
+        self.assist_result_scroll.setVisible(True)
+        
+        if data is not None and not data.empty:
+            provider = self.api_ocr_extractor.config.provider.upper()
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;'>"
+                f"<b>✓ {provider} API 识别完成</b><br>"
+                f"识别到 {len(data)} 个数据项<br>"
+                f"<span style='color: #666;'>请仔细核对并修正识别结果</span>"
+                f"</div>"
+            )
+        else:
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px;'>"
+                f"<b>⚠ 未识别到数据</b><br>"
+                f"<span style='color: #666;'>请手动填写所有数据</span>"
+                f"</div>"
+            )
     
     def display_data_with_template(self, assisted_data):
         """显示完整的数据模板，并填充辅助识别的数据"""

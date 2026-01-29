@@ -52,6 +52,7 @@ class DataEntryWidget(QWidget):
         super().__init__()
         self.ocr_extractor = ocr_extractor
         self.dl_ocr_extractor = dl_ocr_extractor
+        self.api_ocr_extractor = None  # API OCR 提取器
         self.database = database
         self.device_manager = device_manager
         self.settings_manager = settings_manager
@@ -59,6 +60,9 @@ class DataEntryWidget(QWidget):
         self.current_data = None
         self.ocr_worker = None
         self.current_image_path = None  # 保存当前图像路径
+        
+        # 尝试加载 API 配置
+        self._load_api_config()
         
         self.init_ui()
     
@@ -107,6 +111,24 @@ class DataEntryWidget(QWidget):
             tooltip = self._get_dl_unavailable_reason()
             self.assist_btn.setToolTip(tooltip)
         mode_row.addWidget(self.assist_btn)
+        
+        # API 识别按钮
+        self.api_btn = QPushButton("🌐 API 识别")
+        self.api_btn.clicked.connect(self.start_api_entry)
+        if self.api_ocr_extractor:
+            self.api_btn.setEnabled(True)
+            provider = self.api_ocr_extractor.config.provider.upper()
+            self.api_btn.setToolTip(f"使用 {provider} API 进行图像识别")
+        else:
+            self.api_btn.setEnabled(False)
+            self.api_btn.setToolTip(
+                "API 识别不可用\n\n"
+                "请配置 API：\n"
+                "1. 复制 config/api_config.json.example 为 config/api_config.json\n"
+                "2. 填入您的 API 密钥和配置\n"
+                "3. 重启程序"
+            )
+        mode_row.addWidget(self.api_btn)
         
         # 手动录入按钮
         manual_btn = QPushButton("✍️ 手动录入")
@@ -264,6 +286,26 @@ class DataEntryWidget(QWidget):
         
         return "深度学习模型不可用：未知原因"
     
+    def _load_api_config(self):
+        """加载 API 配置"""
+        try:
+            from src.api_ocr_extractor import load_api_config_from_file, APIOCRExtractor
+            from pathlib import Path
+            
+            config_path = Path('config/api_config.json')
+            api_config = load_api_config_from_file(config_path)
+            
+            if api_config:
+                self.api_ocr_extractor = APIOCRExtractor(api_config)
+                print(f"✓ 已加载 API 配置: {api_config.provider}")
+            else:
+                self.api_ocr_extractor = None
+                print("ℹ API 配置文件不存在，API 识别功能不可用")
+                
+        except Exception as e:
+            self.api_ocr_extractor = None
+            print(f"⚠ 加载 API 配置失败: {str(e)}")
+    
     def load_devices(self):
         """加载设备列表"""
         try:
@@ -393,6 +435,82 @@ class DataEntryWidget(QWidget):
             "✓ 已显示完整的数据项模板\n\n"
             "请参考上方截图，手动填写所有数据"
         )
+    
+    def start_api_entry(self):
+        """开始 API 识别"""
+        file_path = self.file_path_edit.text()
+        
+        if not file_path:
+            QMessageBox.warning(self, "提示", "请先选择截图文件")
+            return
+        
+        if not Path(file_path).exists():
+            QMessageBox.critical(self, "错误", "文件不存在")
+            return
+        
+        if not self.api_ocr_extractor:
+            QMessageBox.critical(
+                self, "错误",
+                "API 识别不可用\n\n"
+                "请配置 API：\n"
+                "1. 复制 config/api_config.json.example 为 config/api_config.json\n"
+                "2. 填入您的 API 密钥和配置\n"
+                "3. 重启程序"
+            )
+            return
+        
+        # 显示进度条
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)  # 不确定进度
+        
+        # 创建并启动工作线程
+        self.ocr_worker = OCRWorker(self.api_ocr_extractor, file_path)
+        self.ocr_worker.finished.connect(self.on_api_finished)
+        self.ocr_worker.error.connect(self.on_assist_error)
+        self.ocr_worker.progress.connect(self.on_assist_progress)
+        self.ocr_worker.start()
+        
+        provider = self.api_ocr_extractor.config.provider.upper()
+        QMessageBox.information(
+            self, "API 识别", 
+            f"正在使用 {provider} API 识别图像...\n\n"
+            "这可能需要几秒钟到几十秒\n"
+            "识别结果仅供参考，请仔细核对原始截图"
+        )
+    
+    def on_api_finished(self, data):
+        """API 识别完成"""
+        self.progress_bar.setVisible(False)
+        
+        # 显示识别结果
+        if data is not None and not data.empty:
+            provider = self.api_ocr_extractor.config.provider.upper()
+            assist_summary = f"✓ {provider} API 识别结果（请仔细核对）：\n\n"
+            assist_summary += f"识别到 {len(data)} 个数据项\n\n"
+            
+            for _, row in data.iterrows():
+                assist_summary += f"• {row['item_name']}: {row['value']} {row['unit']}\n"
+            
+            self.assist_result_label.setText(assist_summary)
+            self.assist_result_label.setStyleSheet(
+                "color: #000; padding: 10px; background-color: #e3f2fd; "
+                "border: 2px solid #2196f3; border-radius: 4px; font-family: monospace;"
+            )
+            self.assist_result_scroll.setVisible(True)
+        else:
+            self.assist_result_label.setText(
+                "⚠️ API 未识别到数据\n\n请使用手动录入模式"
+            )
+            self.assist_result_label.setStyleSheet(
+                "color: #000; padding: 10px; background-color: #fff3e0; "
+                "border: 2px solid #ff9800; border-radius: 4px;"
+            )
+            self.assist_result_scroll.setVisible(True)
+        
+        # 显示模板并填充识别结果
+        self.current_data = data if data is not None else pd.DataFrame()
+        self.display_data_with_template(self.current_data)
+        self.save_btn.setEnabled(True)
     
     def on_assist_progress(self, message):
         """辅助识别进度更新"""
@@ -677,6 +795,7 @@ class DataEntryWidget(QWidget):
                 settings_manager=self.settings_manager,
                 image_path=self.current_image_path,  # 传递当前图像路径
                 dl_ocr_extractor=self.dl_ocr_extractor,  # 传递深度学习提取器
+                recognized_data=self.current_data,  # 传递已识别的数据
                 parent=self
             )
             
@@ -694,6 +813,29 @@ class DataEntryWidget(QWidget):
     
     def on_fullscreen_closed(self):
         """全屏窗口关闭后的处理"""
+        # 从全屏窗口获取数据（如果有修改）
+        if hasattr(self, 'fullscreen_window') and self.fullscreen_window:
+            # 获取全屏窗口的当前数据
+            fullscreen_data = self.fullscreen_window.current_data
+            
+            # 如果全屏窗口有数据，同步回普通模式
+            if fullscreen_data is not None and not fullscreen_data.empty:
+                self.current_data = fullscreen_data
+                # 在普通模式也显示这些数据
+                self.display_data_with_template(fullscreen_data)
+                self.save_btn.setEnabled(True)
+                
+                # 显示提示
+                self.assist_result_scroll.setVisible(True)
+                self.assist_result_label.setText(
+                    f"✓ 已从全屏模式同步数据\n\n"
+                    f"共 {len(fullscreen_data)} 个数据项"
+                )
+                self.assist_result_label.setStyleSheet(
+                    "color: #000; padding: 10px; background-color: #e8f5e9; "
+                    "border: 2px solid #4caf50; border-radius: 4px;"
+                )
+        
         # 刷新设备列表（可能在全屏模式下有变化）
         self.load_devices()
         

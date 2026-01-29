@@ -12,9 +12,10 @@
 - **数据导出**: 导出为 CSV、Excel 等格式
 
 ### 数据提取方式
-1. **传统 OCR**: 使用 Tesseract OCR 引擎识别数字（准确率过低 不建议使用）
-2. **深度学习模型**: 使用训练好的 CNN 模型辅助识别（可选）
-3. **手动输入**: 完全手动填写数据
+1. **API 识别** ⭐ 推荐：使用云端 AI 模型识别（准确率最高，无需训练）
+2. **深度学习模型**: 使用训练好的 CNN 模型辅助识别（需要训练）
+3. **传统 OCR**: 使用 Tesseract OCR 引擎识别数字（准确率低，不建议）
+4. **手动输入**: 完全手动填写数据
 
 ### 数据项
 系统支持提取 71 个数据项：
@@ -25,7 +26,8 @@
 ## 快速开始
 
 > 💡 **新手？** 查看 [快速开始指南](QUICK_START.md) 5分钟上手  
-> 🪟 **Windows用户？** 查看 [Windows安装指南](WINDOWS_SETUP.md)
+> 🪟 **Windows用户？** 查看 [Windows安装指南](WINDOWS_SETUP.md)  
+> 🌐 **想用 API 识别？** 查看 [API配置说明](API配置说明.md)
 
 ### 安装
 
@@ -36,6 +38,16 @@ install_simple.bat
 # macOS/Linux
 ./install_dependencies.sh
 ```
+
+### 配置 API 识别（可选，推荐）
+
+如果您想使用云端 AI 进行图像识别：
+
+1. 打开 `config/api_config.json`
+2. 填入您的 API 密钥
+3. 重启程序
+
+**详细说明**: [API配置说明.md](API配置说明.md)
 
 ### 启动
 

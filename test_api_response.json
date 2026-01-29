@@ -1,0 +1,30 @@
+{
+  "choices": [
+    {
+      "message": {
+        "content": "```json\n{\n  \"text\": [\n    \"Z Monitor\",\n    \"File\",\n    \"Auto Print Options\",\n    \"About Z Monitor\",\n    \"Forward Power\",\n    \"Reflected Power\",\n    \"PA Current\",\n    \"PA Voltage\",\n    \"APC Volts\",\n    \"Airflow %\",\n    \"FM EXC Power %\",\n    \"Ambient Temp\",\n    \"IBOC-COR 1\",\n    \"On\",\n    \"Fault\",\n    \"Power % In\",\n    \"Out\",\n    \"COMMAND\",\n    \"ON High\",\n    \"Raise\",\n    \"ON Low\",\n    \"LOWER\",\n    \"OFF\",\n    \"IBOC-COR 2\",\n    \"On\",\n    \"Fault\",\n    \"Power % In\",\n    \"Out\",\n    \"STATUS\",\n    \"Interlock\",\n    \"Failsafe\",\n    \"RMT Disabled\",\n    \"RF Mute\",\n    \"Foldback\",\n    \"Power Low\",\n    \"POWER SUPPLY\",\n    \"Voltage\",\n    \"Current\",\n    \"Temp\",\n    \"PS1\",\n    \"PS2\",\n    \"PS3\",\n    \"PS4\",\n    \"IPA\",\n    \"Current\",\n    \"Voltage\",\n    \"Power\",\n    \"Temp 1\",\n    \"Temp 2\",\n    \"IPA AB\",\n    \"IPA CD\",\n    \"COMBINER ISO TEMPERATURES\",\n    \"AZ\",\n    \"BZ\",\n    \"CZ\",\n    \"DZ\",\n    \"AB\",\n    \"CD\",\n    \"ABCD\",\n    \"Z-Plane A\",\n    \"ISO Temp\",\n    \"Current\",\n    \"Temp\",\n    \"Gate\",\n    \"Z-Plane B\",\n    \"ISO Temp\",\n    \"Current\",\n    \"Temp\",\n    \"Gate\",\n    \"Z-Plane C\",\n    \"ISO Temp\",\n    \"Current\",\n    \"Temp\",\n    \"Gate\",\n    \"Z-Plane D\",\n    \"ISO Temp\",\n    \"Current\",\n    \"Temp\",\n    \"Gate\",\n    \"Date/Time\",\n    \"Frequency\",\n    \"Summary\",\n    \"Exciter\",\n    \"PS\",\n    \"VSWR\",\n    \"PA\",\n    \"ISO Load\",\n    \"IPA\",\n    \"Phase Loss\",\n    \"FAULTS\",\n    \"CALIBRATION FACTORS\",\n    \"IPA\",\n    \"EXC\",\n    \"CAL FREQ\",\n    \"OP APC\",\n    \"CAL APC\",\n    \"HARRIS\"\n  ],\n  \"numbers\": [\n    7990,\n    3,\n    246,\n    48.9,\n    2.47,\n    407,\n    100.2,\n    28,\n    48.9,\n    62.6,\n    35,\n    4.3,\n    48.2,\n    91,\n    36,\n    52,\n    49,\n    62.5,\n    37,\n    4.3,\n    48.1,\n    99.4,\n    49,\n    35,\n    48.8,\n    64.9,\n    35,\n    48.8,\n    65.4,\n    37,\n    42,\n    50,\n    51,\n    56,\n    30,\n    40,\n    29,\n    7.2,\n    48,\n    -0.9,\n    40,\n    7.7,\n    47,\n    -0.9,\n    46,\n    7.8,\n    46,\n    -0.9,\n    42,\n    7.2,\n    42,\n    -0.9,\n    56,\n    7.3,\n    46,\n    -0.9,\n    43,\n    7.8,\n    45,\n    -0.9,\n    40,\n    7.1,\n    47,\n    -0.9,\n    44,\n    7.7,\n    49,\n    -0.9,\n    46,\n    7.7,\n    51,\n    -0.9,\n    44,\n    7.9,\n    49,\n    -0.9,\n    47,\n    7.7,\n    43,\n    -0.9,\n    51,\n    7.4,\n    47,\n    -0.9,\n    48,\n    7.6,\n    50,\n    -0.9,\n    50,\n    7.4,\n    47,\n    -0.9,\n    43,\n    7.5,\n    47,\n    -0.9,\n    39,\n    7.8,\n    49,\n    -0.9,\n    39,\n    8.1,\n    45,\n    -0.9,\n    37,\n    8,\n    46,\n    -0.9,\n    38,\n    7.6,\n    45,\n    -0.9,\n    46,\n    7.7,\n    43,\n    -0.9,\n    54,\n    8.1,\n    48,\n    -0.9,\n    41,\n    8.1,\n    45,\n    -0.9,\n    42,\n    7.7,\n    45,\n    -0.9,\n    50,\n    8.1,\n    47,\n    -0.9,\n    53,\n    7.8,\n    43,\n    -0.9,\n    52,\n    8.2,\n    47,\n    -0.9,\n    53,\n    7.6,\n    44,\n    -0.9,\n    50,\n    7.7,\n    43,\n    -0.9,\n    53,\n    7.6,\n    43,\n    -0.9,\n    41,\n    7.7,\n    43,\n    -0.9,\n    43,\n    7.7,\n    43,\n    -0.9,\n    42,\n    10,\n    16,\n    2025,\n    2,\n    19,\n    10,\n    91.1,\n    312,\n    406,\n    91.1,\n    15.15,\n    15.15,\n    0.015566,\n    0.000613\n  ]\n}\n```",
+        "reasoning_content": "",
+        "role": "assistant"
+      },
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null
+    }
+  ],
+  "object": "chat.completion",
+  "usage": {
+    "prompt_tokens": 502,
+    "completion_tokens": 1504,
+    "total_tokens": 2006,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "text_tokens": 1504
+    }
+  },
+  "created": 1769653734,
+  "system_fingerprint": null,
+  "model": "qwen-vl-max",
+  "id": "chatcmpl-5d1a46fa-4578-950c-9004-1379f6c18a80"
+}

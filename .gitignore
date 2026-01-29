@@ -89,6 +89,9 @@ test_output/
 .env
 .env.local
 
+# API 配置（包含密钥，不要提交）
+config/api_config.json
+
 # 打包文件
 *.zip
 *.tar.gz
