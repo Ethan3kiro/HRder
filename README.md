@@ -2,6 +2,19 @@
 
 一个用于从发射机监控系统截图中提取、分析和管理数据的桌面应用程序。
 
+## 📥 快速下载
+
+**Windows 用户可以直接下载打包好的 exe 文件，无需安装 Python 环境！**
+
+[![下载最新版本](https://img.shields.io/github/v/release/你的用户名/HarrisReader?label=下载最新版本&style=for-the-badge)](https://github.com/你的用户名/HarrisReader/releases/latest)
+
+### 下载步骤
+1. 点击上方按钮或访问 [Releases 页面](https://github.com/你的用户名/HarrisReader/releases)
+2. 下载 `HarrisReader-Windows-vX.X.X.zip`
+3. 解压后运行 `HarrisReader.exe`
+
+> 💡 **提示**: 首次运行可能需要几秒钟启动，请耐心等待
+
 ## 功能特性
 
 ### 核心功能
