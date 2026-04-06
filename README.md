@@ -6,10 +6,10 @@
 
 **Windows 用户可以直接下载打包好的 exe 文件，无需安装 Python 环境！**
 
-[![下载最新版本](https://img.shields.io/github/v/release/你的用户名/HarrisReader?label=下载最新版本&style=for-the-badge)](https://github.com/你的用户名/HarrisReader/releases/latest)
+[![下载最新版本](https://img.shields.io/github/v/release/Ethan915025/HarrisReader?label=下载最新版本&style=for-the-badge)](https://github.com/Ethan915025/HarrisReader/releases/latest)
 
 ### 下载步骤
-1. 点击上方按钮或访问 [Releases 页面](https://github.com/你的用户名/HarrisReader/releases)
+1. 点击上方按钮或访问 [Releases 页面](https://github.com/Ethan915025/HarrisReader/releases)
 2. 下载 `HarrisReader-Windows-vX.X.X.zip`
 3. 解压后运行 `HarrisReader.exe`
 
