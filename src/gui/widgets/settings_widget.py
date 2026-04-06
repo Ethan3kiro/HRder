@@ -5,9 +5,11 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QHBoxLayout,
     QPushButton, QSpinBox, QMessageBox, QGroupBox,
-    QFormLayout
+    QFormLayout, QLineEdit, QComboBox, QCheckBox, QScrollArea
 )
 from PyQt6.QtCore import pyqtSignal
+import json
+from pathlib import Path
 
 
 class SettingsWidget(QWidget):
@@ -26,14 +28,86 @@ class SettingsWidget(QWidget):
     
     def init_ui(self):
         """初始化 UI"""
-        layout = QVBoxLayout(self)
+        # 创建滚动区域
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        
+        # 创建内容容器
+        content_widget = QWidget()
+        layout = QVBoxLayout(content_widget)
         
         title = QLabel("⚙️ 系统设置")
         title.setObjectName("pageTitle")
         layout.addWidget(title)
         
+        # API 识别设置
+        api_group = QGroupBox("🌐 API 识别设置")
+        api_layout = QFormLayout()
+        
+        # API Key
+        self.api_key_edit = QLineEdit()
+        self.api_key_edit.setPlaceholderText("请输入阿里百炼 API Key (sk-...)")
+        self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        api_layout.addRow("API Key：", self.api_key_edit)
+        
+        # 显示/隐藏 API Key 按钮
+        show_key_btn = QPushButton("👁️ 显示")
+        show_key_btn.setMaximumWidth(80)
+        show_key_btn.clicked.connect(self.toggle_api_key_visibility)
+        api_layout.addRow("", show_key_btn)
+        
+        # API URL
+        self.api_url_edit = QLineEdit()
+        self.api_url_edit.setPlaceholderText("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+        api_layout.addRow("API URL：", self.api_url_edit)
+        
+        # 模型名称
+        self.api_model_edit = QLineEdit()
+        self.api_model_edit.setPlaceholderText("qwen-vl-max")
+        api_layout.addRow("模型名称：", self.api_model_edit)
+        
+        # 保存 API 配置按钮
+        save_api_btn = QPushButton("💾 保存 API 配置")
+        save_api_btn.clicked.connect(self.save_api_config)
+        api_layout.addRow("", save_api_btn)
+        
+        # 测试 API 按钮
+        test_api_btn = QPushButton("🧪 测试 API 连接")
+        test_api_btn.clicked.connect(self.test_api_connection)
+        api_layout.addRow("", test_api_btn)
+        
+        # API 状态显示
+        self.api_status_label = QLabel()
+        self.api_status_label.setWordWrap(True)
+        api_layout.addRow("状态：", self.api_status_label)
+        
+        api_group.setLayout(api_layout)
+        layout.addWidget(api_group)
+        
+        # 深度学习模型设置
+        dl_group = QGroupBox("🤖 深度学习模型设置")
+        dl_layout = QFormLayout()
+        
+        # 启用/禁用深度学习模型
+        self.enable_dl_checkbox = QCheckBox("启用深度学习辅助识别")
+        dl_layout.addRow("", self.enable_dl_checkbox)
+        
+        # 模型状态
+        self.dl_status_label = QLabel()
+        self.dl_status_label.setWordWrap(True)
+        dl_layout.addRow("模型状态：", self.dl_status_label)
+        
+        # 模型路径
+        self.dl_model_path_label = QLabel()
+        self.dl_model_path_label.setWordWrap(True)
+        dl_layout.addRow("模型文件：", self.dl_model_path_label)
+        
+        dl_group.setLayout(dl_layout)
+        layout.addWidget(dl_group)
+        
         # 灵敏度设置
-        sensitivity_group = QGroupBox("灵敏度阈值设置")
+        sensitivity_group = QGroupBox("📊 灵敏度阈值设置")
         sensitivity_layout = QFormLayout()
         
         self.threshold_spin = QSpinBox()
@@ -53,7 +127,7 @@ class SettingsWidget(QWidget):
         layout.addWidget(sensitivity_group)
         
         # 主题设置
-        theme_group = QGroupBox("界面主题")
+        theme_group = QGroupBox("🎨 界面主题")
         theme_layout = QHBoxLayout()
         
         light_btn = QPushButton("☀️ 浅色主题")
@@ -68,7 +142,7 @@ class SettingsWidget(QWidget):
         layout.addWidget(theme_group)
         
         # 数据库信息
-        db_group = QGroupBox("数据库信息")
+        db_group = QGroupBox("💾 数据库信息")
         db_layout = QFormLayout()
         
         db_path = str(self.database.db_path)
@@ -80,6 +154,17 @@ class SettingsWidget(QWidget):
         layout.addWidget(db_group)
         
         layout.addStretch()
+        
+        # 设置滚动区域
+        scroll.setWidget(content_widget)
+        
+        # 主布局
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(scroll)
+        
+        # 加载当前配置
+        self.load_current_config()
     
     def save_settings(self):
         """保存设置"""
@@ -96,6 +181,218 @@ class SettingsWidget(QWidget):
                 self, "错误", f"保存设置失败：\n{str(e)}"
             )
     
+    def load_current_config(self):
+        """加载当前配置"""
+        # 加载 API 配置
+        api_config_path = Path("config/api_config.json")
+        if api_config_path.exists():
+            try:
+                with open(api_config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    self.api_key_edit.setText(config.get('api_key', ''))
+                    self.api_url_edit.setText(config.get('api_url', ''))
+                    
+                    # 从 extra_params 中获取模型名称
+                    extra_params = config.get('extra_params', {})
+                    model = extra_params.get('model', '')
+                    self.api_model_edit.setText(model)
+                    
+                    # 更新状态
+                    if config.get('api_key') and config['api_key'] not in ['', '输入阿里百炼API Key', '请在此处填入您的阿里百炼API密钥']:
+                        self.api_status_label.setText("✅ API 已配置")
+                        self.api_status_label.setStyleSheet("color: green;")
+                    else:
+                        self.api_status_label.setText("⚠️ 请配置 API Key")
+                        self.api_status_label.setStyleSheet("color: orange;")
+            except Exception as e:
+                self.api_status_label.setText(f"❌ 配置文件读取失败：{str(e)}")
+                self.api_status_label.setStyleSheet("color: red;")
+        else:
+            self.api_status_label.setText("⚠️ 配置文件不存在")
+            self.api_status_label.setStyleSheet("color: orange;")
+            # 设置默认值
+            self.api_url_edit.setText("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+            self.api_model_edit.setText("qwen-vl-max")
+        
+        # 检查深度学习模型状态
+        self.check_dl_model_status()
+    
+    def check_dl_model_status(self):
+        """检查深度学习模型状态"""
+        try:
+            import torch
+            torch_available = True
+        except ImportError:
+            torch_available = False
+        
+        model_path = Path("models/digit_ocr_model.pth")
+        coordinates_path = Path("models/coordinates.json")
+        
+        if not torch_available:
+            self.dl_status_label.setText("❌ PyTorch 未安装")
+            self.dl_status_label.setStyleSheet("color: red;")
+            self.enable_dl_checkbox.setEnabled(False)
+            self.enable_dl_checkbox.setChecked(False)
+            self.dl_model_path_label.setText("请安装: pip install torch torchvision")
+        elif not model_path.exists():
+            self.dl_status_label.setText("⚠️ 模型文件不存在")
+            self.dl_status_label.setStyleSheet("color: orange;")
+            self.enable_dl_checkbox.setEnabled(False)
+            self.enable_dl_checkbox.setChecked(False)
+            self.dl_model_path_label.setText(f"模型路径: {model_path}\n请先训练模型")
+        elif not coordinates_path.exists():
+            self.dl_status_label.setText("⚠️ 坐标文件不存在")
+            self.dl_status_label.setStyleSheet("color: orange;")
+            self.enable_dl_checkbox.setEnabled(False)
+            self.enable_dl_checkbox.setChecked(False)
+            self.dl_model_path_label.setText(f"坐标路径: {coordinates_path}\n请先提取坐标")
+        else:
+            self.dl_status_label.setText("✅ 模型可用")
+            self.dl_status_label.setStyleSheet("color: green;")
+            self.enable_dl_checkbox.setEnabled(True)
+            self.enable_dl_checkbox.setChecked(True)
+            self.dl_model_path_label.setText(f"模型路径: {model_path}")
+    
+    def toggle_api_key_visibility(self):
+        """切换 API Key 显示/隐藏"""
+        if self.api_key_edit.echoMode() == QLineEdit.EchoMode.Password:
+            self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Normal)
+            self.sender().setText("🙈 隐藏")
+        else:
+            self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
+            self.sender().setText("👁️ 显示")
+    
+    def save_api_config(self):
+        """保存 API 配置"""
+        api_key = self.api_key_edit.text().strip()
+        api_url = self.api_url_edit.text().strip()
+        model = self.api_model_edit.text().strip()
+        
+        if not api_key:
+            QMessageBox.warning(self, "警告", "请输入 API Key")
+            return
+        
+        if not api_url:
+            QMessageBox.warning(self, "警告", "请输入 API URL")
+            return
+        
+        if not model:
+            QMessageBox.warning(self, "警告", "请输入模型名称")
+            return
+        
+        # 构建配置
+        config = {
+            "provider": "custom",
+            "api_key": api_key,
+            "api_url": api_url,
+            "extra_params": {
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "auth_header": "Authorization",
+                "auth_prefix": "Bearer",
+                "model": model,
+                "payload_template": {
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "请识别这张发射机监控截图中的 COMBINER ISO TEMPERATURES 和 Z-Plane 数据。\n\n需要识别的数据项：\n1. COMBINER ISO TEMPERATURES (7项):\n   - AZ, BZ, CZ, DZ, AB, CD, ABCD\n   - 单位：°C\n\n2. Z-Plane 数据 (64项):\n   - 4个模块：A, B, C, D\n   - 每个模块8行数据\n   - 每行2列：Current (单位A) 和 ISO Temp (单位°C)\n   - 命名格式：Z-Plane {模块}-Current-{行号}, Z-Plane {模块}-ISO Temp-{行号}\n   - 例如：Z-Plane A-Current-1, Z-Plane A-ISO Temp-1\n\n请严格按照以下 JSON 格式返回，不要添加任何其他文字说明：\n{\n  \"data\": [\n    {\"item_name\": \"AZ\", \"value\": 30.0, \"unit\": \"°C\"},\n    {\"item_name\": \"BZ\", \"value\": 40.0, \"unit\": \"°C\"},\n    {\"item_name\": \"Z-Plane A-Current-1\", \"value\": 7.2, \"unit\": \"A\"},\n    {\"item_name\": \"Z-Plane A-ISO Temp-1\", \"value\": 48.0, \"unit\": \"°C\"}\n  ]\n}\n\n重要提示：\n- 只返回纯 JSON，不要用 markdown 代码块包裹\n- value 必须是数字类型\n- item_name 必须严格按照上述格式\n- 按照 COMBINER 数据 -> Z-Plane A -> Z-Plane B -> Z-Plane C -> Z-Plane D 的顺序"
+                                },
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": "data:image/jpeg;base64,{{image}}"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "data_path": "choices.0.message.content",
+                "timeout": 120
+            }
+        }
+        
+        # 保存配置
+        config_path = Path("config/api_config.json")
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+            
+            self.api_status_label.setText("✅ API 配置已保存，请重启程序生效")
+            self.api_status_label.setStyleSheet("color: green;")
+            
+            QMessageBox.information(
+                self, "成功", 
+                "API 配置已保存！\n\n请重启程序以使配置生效。"
+            )
+            
+        except Exception as e:
+            QMessageBox.critical(
+                self, "错误", f"保存配置失败：\n{str(e)}"
+            )
+    
+    def test_api_connection(self):
+        """测试 API 连接"""
+        api_key = self.api_key_edit.text().strip()
+        api_url = self.api_url_edit.text().strip()
+        model = self.api_model_edit.text().strip()
+        
+        if not api_key or not api_url or not model:
+            QMessageBox.warning(self, "警告", "请先填写完整的 API 配置")
+            return
+        
+        # 简单测试：发送一个最小的请求
+        try:
+            import requests
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}"
+            }
+            
+            payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "测试连接"
+                    }
+                ]
+            }
+            
+            response = requests.post(
+                api_url,
+                headers=headers,
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                self.api_status_label.setText("✅ API 连接测试成功")
+                self.api_status_label.setStyleSheet("color: green;")
+                QMessageBox.information(self, "成功", "API 连接测试成功！")
+            else:
+                self.api_status_label.setText(f"❌ API 返回错误：{response.status_code}")
+                self.api_status_label.setStyleSheet("color: red;")
+                QMessageBox.warning(
+                    self, "失败", 
+                    f"API 返回错误：\n状态码：{response.status_code}\n响应：{response.text[:200]}"
+                )
+                
+        except Exception as e:
+            self.api_status_label.setText(f"❌ 连接失败：{str(e)}")
+            self.api_status_label.setStyleSheet("color: red;")
+            QMessageBox.critical(
+                self, "错误", f"API 连接测试失败：\n{str(e)}"
+            )
+    
     def change_theme(self, theme_name):
         """切换主题"""
         self.current_theme = theme_name
@@ -110,3 +407,5 @@ class SettingsWidget(QWidget):
         self.threshold_spin.setValue(
             int(self.settings_manager.get_sensitivity_threshold())
         )
+        # 重新加载配置
+        self.load_current_config()
