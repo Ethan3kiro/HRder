@@ -28,7 +28,7 @@ jobs:
     
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --name="HarrisReader" --windowed --onefile --add-data="config;config" --hidden-import=PyQt6 --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtCharts --hidden-import=pandas --hidden-import=numpy --hidden-import=matplotlib --hidden-import=PIL --hidden-import=pytesseract --hidden-import=openpyxl --hidden-import=xlsxwriter --hidden-import=requests --hidden-import=cv2 --collect-all PyQt6 --collect-all matplotlib main_gui.py
+        pyinstaller --name="HarrisReader" --windowed --onefile --add-data="config;config" --hidden-import=PyQt6 --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtCharts --hidden-import=pandas --hidden-import=numpy --hidden-import=matplotlib --hidden-import=PIL --hidden-import=pytesseract --hidden-import=openpyxl --hidden-import=xlsxwriter --hidden-import=requests --hidden-import=urllib3 --hidden-import=charset_normalizer --hidden-import=certifi --hidden-import=idna --hidden-import=cv2 --collect-all PyQt6 --collect-all matplotlib --collect-all requests main_gui.py
     
     - name: Create release package
       run: |
