@@ -79,17 +79,6 @@ artifacts:
   - path: HarrisReader-Windows-*.zip
     name: HarrisReader-Windows
 
-# 部署到 GitHub Releases
-deploy:
-  provider: GitHub
-  auth_token:
-    secure: YOUR_GITHUB_TOKEN_HERE  # 需要在 AppVeyor 设置中加密
-  artifact: HarrisReader-Windows
-  draft: false
-  prerelease: false
-  on:
-    APPVEYOR_REPO_TAG: true
-
 # 通知（可选）
 notifications:
   - provider: Email
