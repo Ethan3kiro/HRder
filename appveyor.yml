@@ -63,7 +63,7 @@ build_script:
   - cmd: mkdir release
   - cmd: copy dist\HarrisReader.exe release\
   - cmd: copy README.md release\
-  - cmd: copy 智谱AI配置指南.md release\
+  - cmd: if exist "智谱AI配置指南.md" copy "智谱AI配置指南.md" release\
   - cmd: xcopy /E /I config release\config
   - cmd: xcopy /E /I examples release\examples
   - cmd: echo HarrisReader %APPVEYOR_REPO_TAG_NAME% > release\VERSION.txt
