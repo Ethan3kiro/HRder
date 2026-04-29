@@ -413,6 +413,9 @@ class APIOCRExtractor:
             
             # 如果数据是字符串，尝试解析为 JSON
             if isinstance(data, str):
+                # 清理字符串：移除可能的转义字符
+                data = data.strip()
+                
                 # 尝试提取 JSON（可能包含在 markdown 代码块中）
                 if '```json' in data:
                     json_start = data.find('```json') + 7
@@ -422,6 +425,15 @@ class APIOCRExtractor:
                     json_start = data.find('```') + 3
                     json_end = data.find('```', json_start)
                     data = data[json_start:json_end].strip()
+                
+                # 如果字符串看起来像是被转义过的 JSON（包含 \"）
+                # 尝试先解码一次
+                if r'\"' in data or r'\n' in data:
+                    try:
+                        # 尝试作为 JSON 字符串解码
+                        data = json.loads(f'"{data}"')
+                    except:
+                        pass  # 如果失败，继续使用原始字符串
                 
                 # 解析 JSON 字符串
                 data = json.loads(data)
