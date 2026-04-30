@@ -847,3 +847,5 @@ class DataEntryWidget(QWidget):
     def refresh(self):
         """刷新数据"""
         self.load_devices()
+        # 重新加载 API 配置
+        self._load_api_config()

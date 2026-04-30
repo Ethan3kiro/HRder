@@ -1,16 +1,16 @@
 {
-  "provider": "zhipu",
-  "api_key": "请在此处填入您的智谱AI API密钥",
-  "api_url": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+  "provider": "custom",
+  "api_key": "输入阿里百炼API Key",
+  "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
   "extra_params": {
     "headers": {
       "Content-Type": "application/json"
     },
     "auth_header": "Authorization",
     "auth_prefix": "Bearer",
-    "model": "glm-4v-flash",
+    "model": "qwen-vl-max",
     "payload_template": {
-      "model": "glm-4v-flash",
+      "model": "qwen-vl-max",
       "messages": [
         {
           "role": "user",

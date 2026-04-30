@@ -1,0 +1,35 @@
+{
+  "provider": "custom",
+  "api_key": "请在此处填入您的阿里云百炼API密钥",
+  "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "extra_params": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "auth_header": "Authorization",
+    "auth_prefix": "Bearer",
+    "model": "qwen-vl-plus",
+    "payload_template": {
+      "model": "qwen-vl-plus",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "识别图中所有数据:\n1.COMBINER:AZ,BZ,CZ,DZ,AB,CD,ABCD(单位°C)\n2.Z-Plane A/B/C/D:每个8行,每行Current(A)和ISO Temp(°C)\n格式:Z-Plane A-Current-1\n\n返回JSON:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"}]}\n\n要求:纯JSON,不用markdown,value为数字,全部71项"
+            },
+            {
+              "type": "image_url",
+              "image_url": {
+                "url": "data:image/jpeg;base64,{{image}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "data_path": "choices.0.message.content",
+    "timeout": 120
+  }
+}

@@ -67,6 +67,14 @@ class SettingsWidget(QWidget):
         self.api_model_edit.setPlaceholderText("qwen-vl-max")
         api_layout.addRow("模型名称：", self.api_model_edit)
         
+        # Max Tokens
+        self.api_max_tokens_spin = QSpinBox()
+        self.api_max_tokens_spin.setRange(512, 8192)
+        self.api_max_tokens_spin.setSingleStep(512)
+        self.api_max_tokens_spin.setValue(4096)
+        self.api_max_tokens_spin.setToolTip("最大输出token数，建议4096以上以确保完整输出所有数据")
+        api_layout.addRow("Max Tokens：", self.api_max_tokens_spin)
+        
         # 保存 API 配置按钮
         save_api_btn = QPushButton("💾 保存 API 配置")
         save_api_btn.clicked.connect(self.save_api_config)
@@ -192,10 +200,15 @@ class SettingsWidget(QWidget):
                     self.api_key_edit.setText(config.get('api_key', ''))
                     self.api_url_edit.setText(config.get('api_url', ''))
                     
-                    # 从 extra_params 中获取模型名称
+                    # 从 extra_params 中获取模型名称和 max_tokens
                     extra_params = config.get('extra_params', {})
                     model = extra_params.get('model', '')
                     self.api_model_edit.setText(model)
+                    
+                    # 从 payload_template 中获取 max_tokens
+                    payload_template = extra_params.get('payload_template', {})
+                    max_tokens = payload_template.get('max_tokens', 4096)
+                    self.api_max_tokens_spin.setValue(max_tokens)
                     
                     # 更新状态
                     if config.get('api_key') and config['api_key'] not in ['', '输入阿里百炼API Key', '请在此处填入您的阿里百炼API密钥']:
@@ -267,6 +280,7 @@ class SettingsWidget(QWidget):
         api_key = self.api_key_edit.text().strip()
         api_url = self.api_url_edit.text().strip()
         model = self.api_model_edit.text().strip()
+        max_tokens = self.api_max_tokens_spin.value()
         
         if not api_key:
             QMessageBox.warning(self, "警告", "请输入 API Key")
@@ -294,13 +308,14 @@ class SettingsWidget(QWidget):
                 "model": model,
                 "payload_template": {
                     "model": model,
+                    "max_tokens": max_tokens,
                     "messages": [
                         {
                             "role": "user",
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "请识别这张发射机监控截图中的 COMBINER ISO TEMPERATURES 和 Z-Plane 数据。\n\n需要识别的数据项：\n1. COMBINER ISO TEMPERATURES (7项):\n   - AZ, BZ, CZ, DZ, AB, CD, ABCD\n   - 单位：°C\n\n2. Z-Plane 数据 (64项):\n   - 4个模块：A, B, C, D\n   - 每个模块8行数据\n   - 每行2列：Current (单位A) 和 ISO Temp (单位°C)\n   - 命名格式：Z-Plane {模块}-Current-{行号}, Z-Plane {模块}-ISO Temp-{行号}\n   - 例如：Z-Plane A-Current-1, Z-Plane A-ISO Temp-1\n\n请严格按照以下 JSON 格式返回，不要添加任何其他文字说明：\n{\n  \"data\": [\n    {\"item_name\": \"AZ\", \"value\": 30.0, \"unit\": \"°C\"},\n    {\"item_name\": \"BZ\", \"value\": 40.0, \"unit\": \"°C\"},\n    {\"item_name\": \"Z-Plane A-Current-1\", \"value\": 7.2, \"unit\": \"A\"},\n    {\"item_name\": \"Z-Plane A-ISO Temp-1\", \"value\": 48.0, \"unit\": \"°C\"}\n  ]\n}\n\n重要提示：\n- 只返回纯 JSON，不要用 markdown 代码块包裹\n- value 必须是数字类型\n- item_name 必须严格按照上述格式\n- 按照 COMBINER 数据 -> Z-Plane A -> Z-Plane B -> Z-Plane C -> Z-Plane D 的顺序"
+                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行,每行Current和ISO Temp)。\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"}]}\n\n要求:纯JSON,不用markdown,value为数字,按COMBINER->Z-Plane A->B->C->D顺序"
                                 },
                                 {
                                     "type": "image_url",
@@ -325,12 +340,14 @@ class SettingsWidget(QWidget):
             with open(config_path, 'w', encoding='utf-8') as f:
                 json.dump(config, f, indent=2, ensure_ascii=False)
             
-            self.api_status_label.setText("✅ API 配置已保存，请重启程序生效")
+            self.api_status_label.setText("✅ API 配置已保存")
             self.api_status_label.setStyleSheet("color: green;")
             
             QMessageBox.information(
                 self, "成功", 
-                "API 配置已保存！\n\n请重启程序以使配置生效。"
+                "API 配置已保存！\n\n"
+                "请切换到其他页面再返回数据录入页面，\n"
+                "或重启程序以使配置生效。"
             )
             
         except Exception as e:
