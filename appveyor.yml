@@ -35,15 +35,8 @@ artifacts:
     name: HarrisReader-Windows-$(APPVEYOR_REPO_TAG_NAME)
     type: zip
 
-deploy:
-  - provider: GitHub
-    auth_token:
-      secure: YOUR_GITHUB_TOKEN_HERE
-    artifact: HarrisReader-Windows-$(APPVEYOR_REPO_TAG_NAME)
-    draft: false
-    prerelease: false
-    on:
-      APPVEYOR_REPO_TAG: true
+# 不部署到 GitHub，只生成 artifacts
+# 可以从 AppVeyor 项目页面下载构建产物
 
 # 只在打标签时构建
 skip_non_tags: false
