@@ -388,7 +388,7 @@ class SettingsWidget(QWidget):
                 api_url,
                 headers=headers,
                 json=payload,
-                timeout=10
+                timeout=60  # 增加到 60 秒
             )
             
             if response.status_code == 200:
