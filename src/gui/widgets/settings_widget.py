@@ -315,7 +315,7 @@ class SettingsWidget(QWidget):
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行,每行Current和ISO Temp)。\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"}]}\n\n要求:纯JSON,不用markdown,value为数字,按COMBINER->Z-Plane A->B->C->D顺序"
+                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行)。\n\n⚠️重要:Z-Plane每行有Current、Temp、ISO Temp三列,请识别Current列和ISO Temp列(最右侧),不要识别Temp列。\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"},{\"item_name\":\"Z-Plane A-ISO Temp-1\",\"value\":48.0,\"unit\":\"°C\"}]}\n\n要求:纯JSON,不用markdown,value为数字,Z-Plane必须读Current和ISO Temp列,按COMBINER->Z-Plane A->B->C->D顺序"
                                 },
                                 {
                                     "type": "image_url",
