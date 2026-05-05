@@ -315,7 +315,7 @@ class SettingsWidget(QWidget):
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行)。\n\n⚠️重要:Z-Plane每行有4列(从左到右):Current(读取)、Temp(跳过)、ISO Gate(跳过)、ISO Temp(读取,最右侧温度)。ISO Temp是每行最右侧的温度值,不是中间的Temp!\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"},{\"item_name\":\"Z-Plane A-ISO Temp-1\",\"value\":40.0,\"unit\":\"°C\"}]}\n\n要求:纯JSON,不用markdown,value为数字,Z-Plane的ISO Temp必须读取最右侧温度列(第4列),按COMBINER->Z-Plane A->B->C->D顺序"
+                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行)。\n\n⚠️关键:看表头!每个Z-Plane表格有4列:Current|Temp|ISO Gate|ISO Temp。只读取Current列(第1列,值约7-8)和ISO Temp列(第4列最右侧,值约40-60)。\n\n示例:Z-Plane A第1行: Current=7.2(读), Temp=48(跳过), Gate=-0.9(跳过), ISO Temp=40(读)\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"},{\"item_name\":\"Z-Plane A-ISO Temp-1\",\"value\":40.0,\"unit\":\"°C\"}]}\n\n要求:纯JSON,不用markdown,value为数字,ISO Temp是最右侧独立列,按COMBINER->Z-Plane A->B->C->D顺序"
                                 },
                                 {
                                     "type": "image_url",
