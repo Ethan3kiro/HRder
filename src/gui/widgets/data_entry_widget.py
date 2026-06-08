@@ -281,24 +281,26 @@ class DataEntryWidget(QWidget):
     def load_image_preview(self, image_path):
         """加载并显示图像预览"""
         try:
-            import cv2
+            from PIL import Image
+            import numpy as np
             from PyQt6.QtGui import QImage
             
             self.current_image_path = image_path
             
-            # 使用OpenCV加载（支持BMP等更多格式）
-            img = cv2.imread(image_path)
-            if img is None:
-                self.image_label.setText("无法加载图像")
-                return
+            # 使用PIL加载（最可靠的跨平台方案）
+            pil_image = Image.open(image_path)
             
-            # 转换BGR到RGB
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            h, w, ch = img_rgb.shape
+            # 转换为RGB模式（处理各种BMP格式）
+            if pil_image.mode != 'RGB':
+                pil_image = pil_image.convert('RGB')
+            
+            # 转换为numpy数组
+            img_array = np.array(pil_image)
+            h, w, ch = img_array.shape
             bytes_per_line = ch * w
             
-            # 转换为QImage (需要复制数据以保证生命周期)
-            q_img = QImage(img_rgb.data, w, h, bytes_per_line, QImage.Format.Format_RGB888).copy()
+            # 转换为QImage
+            q_img = QImage(img_array.data, w, h, bytes_per_line, QImage.Format.Format_RGB888).copy()
             pixmap = QPixmap.fromImage(q_img)
             
             # 缩放显示
