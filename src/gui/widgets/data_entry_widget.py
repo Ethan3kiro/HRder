@@ -297,8 +297,8 @@ class DataEntryWidget(QWidget):
             h, w, ch = img_rgb.shape
             bytes_per_line = ch * w
             
-            # 转换为QImage
-            q_img = QImage(img_rgb.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
+            # 转换为QImage (需要复制数据以保证生命周期)
+            q_img = QImage(img_rgb.data, w, h, bytes_per_line, QImage.Format.Format_RGB888).copy()
             pixmap = QPixmap.fromImage(q_img)
             
             # 缩放显示
