@@ -40,8 +40,23 @@ class AlignmentWidget(QLabel):
     
     def load_image(self, image_path: str):
         """加载图像"""
-        self.original_image = cv2.imread(image_path)
-        if self.original_image is None:
+        try:
+            from PIL import Image
+            import numpy as np
+            
+            # 使用PIL加载（跨平台兼容性最好）
+            pil_image = Image.open(image_path)
+            
+            # 转换为RGB模式
+            if pil_image.mode != 'RGB':
+                pil_image = pil_image.convert('RGB')
+            
+            # 转换为numpy数组，再转为BGR（OpenCV格式）
+            img_rgb = np.array(pil_image)
+            self.original_image = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+            
+        except Exception as e:
+            print(f"加载图像失败: {str(e)}")
             return False
         
         # 加载坐标

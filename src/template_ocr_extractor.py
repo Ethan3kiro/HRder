@@ -114,8 +114,16 @@ class TemplateOCRExtractor:
         logger.info(f"开始处理图像: {image_path}")
         
         try:
-            # 1. 读取图像
-            image = cv2.imread(str(image_path))
+            # 1. 读取图像（使用PIL确保跨平台兼容）
+            from PIL import Image as PILImage
+            import numpy as np
+            
+            pil_image = PILImage.open(str(image_path))
+            if pil_image.mode != 'RGB':
+                pil_image = pil_image.convert('RGB')
+            img_rgb = np.array(pil_image)
+            image = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+            
             if image is None:
                 raise OCRError(f"无法读取图像: {image_path}")
             
@@ -402,7 +410,15 @@ class TemplateOCRExtractor:
         Returns:
             识别结果
         """
-        image = cv2.imread(str(image_path))
+        from PIL import Image as PILImage
+        import numpy as np
+        
+        pil_image = PILImage.open(str(image_path))
+        if pil_image.mode != 'RGB':
+            pil_image = pil_image.convert('RGB')
+        img_rgb = np.array(pil_image)
+        image = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+        
         if image is None:
             raise ValueError(f"无法读取图像: {image_path}")
         
