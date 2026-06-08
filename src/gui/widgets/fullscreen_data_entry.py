@@ -394,18 +394,30 @@ class FullscreenDataEntryWindow(QWidget):
     def load_image_preview(self, image_path):
         """加载并显示图像预览"""
         try:
+            import cv2
+            from PyQt6.QtGui import QImage
+            
             self.current_image_path = image_path
             self.file_path_edit.setText(image_path)
             
-            pixmap = QPixmap(image_path)
-            
-            if pixmap.isNull():
+            # 使用OpenCV加载（支持BMP等更多格式）
+            img = cv2.imread(image_path)
+            if img is None:
                 self.image_label.setText("无法加载图像")
                 self.image_label.setStyleSheet(
                     "color: #f44336; padding: 40px; background-color: #ffebee; "
                     "border: 2px solid #f44336; font-size: 16px;"
                 )
                 return
+            
+            # 转换BGR到RGB
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            h, w, ch = img_rgb.shape
+            bytes_per_line = ch * w
+            
+            # 转换为QImage
+            q_img = QImage(img_rgb.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
             
             # 缩放图像以适应显示区域（保持宽高比）
             # 在全屏模式下，可以显示更大的图像

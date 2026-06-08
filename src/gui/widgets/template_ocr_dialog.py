@@ -222,6 +222,7 @@ class TemplateOCRDialog(QDialog):
         super().__init__(parent)
         self.image_path = image_path
         self.recognition_result = None
+        self._is_fullscreen = False  # 跟踪全屏状态
         
         self.setWindowTitle("模板OCR识别")
         self.setModal(True)
@@ -295,6 +296,10 @@ class TemplateOCRDialog(QDialog):
         
         # 按钮
         button_layout = QHBoxLayout()
+        
+        fullscreen_btn = QPushButton("🖥️ 全屏模式")
+        fullscreen_btn.clicked.connect(self.toggle_fullscreen)
+        button_layout.addWidget(fullscreen_btn)
         
         test_btn = QPushButton("🧪 测试识别")
         test_btn.clicked.connect(self.test_recognition)
@@ -458,3 +463,12 @@ class TemplateOCRDialog(QDialog):
         alignment_file.parent.mkdir(parents=True, exist_ok=True)
         with open(alignment_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
+    
+    def toggle_fullscreen(self):
+        """切换全屏模式"""
+        if self._is_fullscreen:
+            self.showNormal()
+            self._is_fullscreen = False
+        else:
+            self.showFullScreen()
+            self._is_fullscreen = True
