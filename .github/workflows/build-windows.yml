@@ -31,19 +31,21 @@ jobs:
         pyinstaller --name="HarrisReader" --windowed --onefile --add-data="config;config" --hidden-import=PyQt6 --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtCharts --hidden-import=pandas --hidden-import=numpy --hidden-import=matplotlib --hidden-import=PIL --hidden-import=pytesseract --hidden-import=openpyxl --hidden-import=xlsxwriter --hidden-import=requests --hidden-import=urllib3 --hidden-import=charset_normalizer --hidden-import=certifi --hidden-import=idna --hidden-import=cv2 --collect-all PyQt6 --collect-all matplotlib --collect-all requests main_gui.py
     
     - name: Create release package
+      shell: pwsh
       run: |
-        mkdir release
-        copy dist\HarrisReader.exe release\
-        copy README.md release\
-        if exist "如何使用API识别.md" (copy "如何使用API识别.md" release\)
-        if exist "API密钥配置快速参考.txt" (copy "API密钥配置快速参考.txt" release\)
-        if exist config (xcopy /E /I config release\config)
-        if exist examples (xcopy /E /I examples release\examples)
-        echo HarrisReader v${{ github.ref_name }} > release\VERSION.txt
+        New-Item -ItemType Directory -Path release -Force
+        Copy-Item dist\HarrisReader.exe release\
+        Copy-Item README.md release\
+        if (Test-Path "如何使用API识别.md") { Copy-Item "如何使用API识别.md" release\ }
+        if (Test-Path "API密钥配置快速参考.txt") { Copy-Item "API密钥配置快速参考.txt" release\ }
+        if (Test-Path config) { Copy-Item -Recurse config release\config }
+        if (Test-Path examples) { Copy-Item -Recurse examples release\examples }
+        "HarrisReader v${{ github.ref_name }}" | Out-File -FilePath release\VERSION.txt
     
     - name: Create ZIP archive
+      shell: pwsh
       run: |
-        powershell Compress-Archive -Path release\* -DestinationPath HarrisReader-Windows-${{ github.ref_name }}.zip
+        Compress-Archive -Path release\* -DestinationPath HarrisReader-Windows-${{ github.ref_name }}.zip
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
