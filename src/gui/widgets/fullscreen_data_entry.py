@@ -14,35 +14,73 @@ from pathlib import Path
 import pandas as pd
 
 
-class OCRWorker(QThread):
-    """OCR 处理工作线程"""
+class APIWorker(QThread):
+    """API 识别处理工作线程"""
     
     finished = pyqtSignal(object)  # 完成信号，传递 DataFrame
     error = pyqtSignal(str)  # 错误信号
     progress = pyqtSignal(str)  # 进度信号
     
-    def __init__(self, ocr_extractor, image_path):
+    def __init__(self, api_extractor, image_path):
         super().__init__()
-        self.ocr_extractor = ocr_extractor
+        self.api_extractor = api_extractor
         self.image_path = image_path
     
     def run(self):
-        """执行 OCR 识别"""
+        """执行 API 识别"""
         try:
             self.progress.emit("正在读取图像...")
             
-            if not self.ocr_extractor:
-                self.error.emit("OCR 提取器未初始化")
+            if not self.api_extractor:
+                self.error.emit("API 提取器未初始化")
                 return
             
-            self.progress.emit("正在进行 OCR 识别...")
-            result = self.ocr_extractor.extract_from_image(Path(self.image_path))
+            self.progress.emit("正在调用 API 识别...")
+            result = self.api_extractor.extract_from_image(Path(self.image_path))
             
             self.progress.emit("识别完成！")
             self.finished.emit(result)
             
         except Exception as e:
-            self.error.emit(f"OCR 识别失败：{str(e)}")
+            self.error.emit(f"API 识别失败：{str(e)}")
+
+
+class TemplateWorker(QThread):
+    """模板识别处理工作线程"""
+    
+    finished = pyqtSignal(object)  # 完成信号，传递 DataFrame
+    error = pyqtSignal(str)  # 错误信号
+    progress = pyqtSignal(str)  # 进度信号
+    
+    def __init__(self, image_path):
+        super().__init__()
+        self.image_path = image_path
+    
+    def run(self):
+        """执行模板识别"""
+        try:
+            self.progress.emit("正在加载模板...")
+            
+            from src.template_ocr_extractor import TemplateOCRExtractor
+            
+            extractor = TemplateOCRExtractor()
+            
+            self.progress.emit("正在识别图像...")
+            result = extractor.extract_from_image(Path(self.image_path))
+            
+            self.progress.emit("识别完成！")
+            self.finished.emit(result)
+            
+        except FileNotFoundError as e:
+            if 'template_coordinates.json' in str(e):
+                self.error.emit(
+                    "坐标模板文件不存在\n\n"
+                    "请先运行坐标标定工具"
+                )
+            else:
+                self.error.emit(f"模板识别失败：{str(e)}")
+        except Exception as e:
+            self.error.emit(f"模板识别失败：{str(e)}")
 
 
 class FullscreenDataEntryWindow(QWidget):
@@ -52,34 +90,30 @@ class FullscreenDataEntryWindow(QWidget):
     closed = pyqtSignal()  # 窗口关闭信号
     
     def __init__(self, database, device_manager, settings_manager, 
-                 image_path=None, dl_ocr_extractor=None, recognized_data=None, parent=None):
+                 image_path=None, api_ocr_extractor=None, recognized_data=None, parent=None):
         super().__init__(parent)
         
         # 初始化所有属性
-        self.dl_ocr_extractor = dl_ocr_extractor
-        self.api_ocr_extractor = None  # API OCR 提取器
+        self.api_ocr_extractor = api_ocr_extractor
         self.database = database
         self.device_manager = device_manager
         self.settings_manager = settings_manager
         
         self.current_data = recognized_data  # 接收已识别的数据
-        self.ocr_worker = None
+        self.api_worker = None
         self.current_image_path = image_path
-        
-        # 尝试加载 API 配置
-        self._load_api_config()
         
         # 初始化UI组件引用（避免在init_ui之前访问）
         self.file_path_edit = None
         self.image_label = None
         self.assist_result_label = None
-        self.assist_result_scroll = None  # 辅助识别结果滚动区域
+        self.assist_result_scroll = None  # 识别结果滚动区域
         self.data_table = None
         self.device_combo = None
         self.month_edit = None
         self.save_btn = None
         self.progress_bar = None
-        self.assist_btn = None
+        self.api_btn = None
         self.manual_btn = None
         
         try:
@@ -103,7 +137,6 @@ class FullscreenDataEntryWindow(QWidget):
                     f"<span style='color: #666;'>数据来自普通模式的识别结果</span>"
                     f"</div>"
                 )
-                
         except Exception as e:
             import traceback
             error_msg = f"初始化全屏窗口失败：{str(e)}\n\n详细信息：\n{traceback.format_exc()}"
@@ -184,22 +217,14 @@ class FullscreenDataEntryWindow(QWidget):
         toolbar_layout.addSpacing(20)
         
         # 录入模式按钮
-        self.assist_btn = QPushButton("🤖 辅助录入")
-        self.assist_btn.clicked.connect(self.start_assisted_entry)
-        
-        # 检查深度学习模型是否可用
-        if self.dl_ocr_extractor:
-            self.assist_btn.setEnabled(True)
-            self.assist_btn.setToolTip("使用深度学习模型辅助识别数字")
-        else:
-            self.assist_btn.setEnabled(False)
-            # 提供更详细的不可用原因
-            tooltip = self._get_dl_unavailable_reason()
-            self.assist_btn.setToolTip(tooltip)
-        toolbar_layout.addWidget(self.assist_btn)
+        # 模板识别按钮
+        self.template_btn = QPushButton("🖼️ 模板识别")
+        self.template_btn.clicked.connect(self.start_template_entry)
+        self.template_btn.setToolTip("使用本地模板匹配OCR识别（离线、快速）")
+        toolbar_layout.addWidget(self.template_btn)
         
         # API 识别按钮
-        self.api_btn = QPushButton("🌐 API")
+        self.api_btn = QPushButton("🌐 API 识别")
         self.api_btn.clicked.connect(self.start_api_entry)
         if self.api_ocr_extractor:
             self.api_btn.setEnabled(True)
@@ -270,7 +295,7 @@ class FullscreenDataEntryWindow(QWidget):
         image_scroll.setWidget(self.image_label)
         layout.addWidget(image_scroll)
         
-        # 辅助识别结果提示（仅在辅助录入模式下显示）- 使用滚动区域
+        # 识别结果提示（仅在 API 识别模式下显示）- 使用滚动区域
         assist_scroll = QScrollArea()
         assist_scroll.setWidgetResizable(True)
         assist_scroll.setMaximumHeight(150)  # 限制最大高度
@@ -318,53 +343,27 @@ class FullscreenDataEntryWindow(QWidget):
         return panel
     
     def _get_dl_unavailable_reason(self):
-        """获取深度学习模型不可用的原因"""
-        from pathlib import Path
-        
-        # 检查 PyTorch 是否安装
-        try:
-            import torch
-            torch_available = True
-        except ImportError:
-            return ("深度学习模型不可用：PyTorch 未安装\n\n"
-                   "请安装 PyTorch：\n"
-                   "pip install torch torchvision\n\n"
-                   "或参考 TRAINING.md 文档")
-        
-        # 检查模型文件是否存在
-        model_path = Path("models/digit_ocr_model.pth")
-        if not model_path.exists():
-            return ("深度学习模型不可用：模型文件不存在\n\n"
-                   "请先训练模型：\n"
-                   "python training/tools/train_dl_model.py\n\n"
-                   "或参考 QUICK_START_DL_TRAINING.md 文档")
-        
-        # 检查坐标文件是否存在
-        coordinates_path = Path("models/coordinates.json")
-        if not coordinates_path.exists():
-            return ("深度学习模型不可用：坐标文件不存在\n\n"
-                   "请先提取坐标：\n"
-                   "python training/tools/extract_coordinates_interactive.py\n\n"
-                   "或参考 QUICK_START_DL_TRAINING.md 文档")
-        
-        return "深度学习模型不可用：未知原因"
+        """获取深度学习模型不可用的原因 - 已弃用"""
+        return "深度学习模型已移除\n\n请使用 API 识别或手动录入"
     
-    def _load_api_config(self):
-        """加载 API 配置"""
-        try:
-            from src.api_ocr_extractor import load_api_config_from_file, APIOCRExtractor
-            from pathlib import Path
-            
-            config_path = Path('config/api_config.json')
-            api_config = load_api_config_from_file(config_path)
-            
-            if api_config:
-                self.api_ocr_extractor = APIOCRExtractor(api_config)
-            else:
-                self.api_ocr_extractor = None
-                
-        except Exception as e:
-            self.api_ocr_extractor = None
+    def start_assisted_entry(self):
+        """开始辅助录入（使用深度学习模型）- 已弃用"""
+        QMessageBox.information(
+            self, "功能移除",
+            "深度学习模型识别功能已移除\n\n请使用：\n• API 识别\n• 手动录入"
+        )
+    
+    def on_assisted_entry_progress(self, message):
+        """辅助录入进度更新 - 已弃用"""
+        pass
+    
+    def on_assisted_entry_finished(self, data):
+        """辅助录入完成 - 已弃用"""
+        pass
+    
+    def on_assisted_entry_error(self, error_msg):
+        """辅助录入错误 - 已弃用"""
+        pass
     
     def load_devices(self):
         """加载设备列表"""
@@ -440,8 +439,9 @@ class FullscreenDataEntryWindow(QWidget):
         if file_path:
             self.load_image_preview(file_path)
     
-    def start_assisted_entry(self):
-        """开始辅助录入（使用深度学习模型）"""
+    
+    def start_template_entry(self):
+        """开始模板识别"""
         file_path = self.file_path_edit.text()
         
         if not file_path:
@@ -452,61 +452,31 @@ class FullscreenDataEntryWindow(QWidget):
             QMessageBox.critical(self, "错误", "文件不存在")
             return
         
-        if not self.dl_ocr_extractor:
-            QMessageBox.critical(
-                self, "错误", 
-                "深度学习模型未初始化"
+        # 检查坐标文件
+        coords_file = Path('config/template_coordinates.json')
+        if not coords_file.exists():
+            QMessageBox.warning(
+                self, "坐标模板不存在",
+                "尚未标定坐标模板\n\n"
+                "请先运行坐标标定工具：\n"
+                "python tools/coordinate_calibrator.py <图像路径>\n\n"
+                "详细说明请查看：docs/TEMPLATE_OCR_GUIDE.md"
             )
             return
         
-        # 显示进度条
-        self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)
-        self.progress_bar.setFormat("正在使用深度学习模型识别...")
-        
-        # 创建并启动工作线程 - 使用 OCRWorker 类
-        self.ocr_worker = OCRWorker(self.dl_ocr_extractor, file_path)
-        self.ocr_worker.finished.connect(self.on_assisted_entry_finished)
-        self.ocr_worker.error.connect(self.on_assisted_entry_error)
-        self.ocr_worker.progress.connect(self.on_assisted_entry_progress)
-        self.ocr_worker.start()
-    
-    def on_assisted_entry_progress(self, message):
-        """辅助录入进度更新"""
-        self.progress_bar.setFormat(message)
-    
-    def on_assisted_entry_finished(self, data):
-        """辅助录入完成"""
-        self.progress_bar.setVisible(False)
-        
-        # 显示模板并填充识别结果
-        self.current_data = data if data is not None else pd.DataFrame()
-        self.display_data_with_template(self.current_data)
-        self.save_btn.setEnabled(True)
-        
-        # 显示辅助识别结果提示
-        self.assist_result_scroll.setVisible(True)
-        
-        if data is not None and not data.empty:
-            self.assist_result_label.setText(
-                f"<div style='padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;'>"
-                f"<b>✓ 辅助识别完成</b><br>"
-                f"识别到 {len(data)} 个数据项<br>"
-                f"<span style='color: #666;'>请仔细核对并修正识别结果</span>"
-                f"</div>"
+        # 打开模板OCR对话框
+        try:
+            from src.gui.widgets.template_ocr_dialog import TemplateOCRDialog
+            
+            dialog = TemplateOCRDialog(file_path, self)
+            dialog.recognition_completed.connect(self.on_template_entry_finished)
+            dialog.exec()
+            
+        except Exception as e:
+            QMessageBox.critical(
+                self, "错误",
+                f"打开识别对话框失败：{str(e)}"
             )
-        else:
-            self.assist_result_label.setText(
-                f"<div style='padding: 10px; background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px;'>"
-                f"<b>⚠ 未识别到数据</b><br>"
-                f"<span style='color: #666;'>请手动填写所有数据</span>"
-                f"</div>"
-            )
-    
-    def on_assisted_entry_error(self, error_msg):
-        """辅助录入错误"""
-        self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, "错误", f"辅助识别失败：{error_msg}")
     
     def start_manual_entry(self):
         """开始手动录入（显示空白表格）"""
@@ -516,7 +486,7 @@ class FullscreenDataEntryWindow(QWidget):
             QMessageBox.warning(self, "提示", "请先选择截图文件")
             return
         
-        # 隐藏辅助识别结果提示
+        # 隐藏识别结果提示
         self.assist_result_scroll.setVisible(False)
         
         # 显示空白模板
@@ -554,11 +524,15 @@ class FullscreenDataEntryWindow(QWidget):
         self.progress_bar.setFormat("正在调用 API 识别...")
         
         # 创建并启动工作线程
-        self.ocr_worker = OCRWorker(self.api_ocr_extractor, file_path)
-        self.ocr_worker.finished.connect(self.on_api_entry_finished)
-        self.ocr_worker.error.connect(self.on_assisted_entry_error)
-        self.ocr_worker.progress.connect(self.on_assisted_entry_progress)
-        self.ocr_worker.start()
+        self.api_worker = APIWorker(self.api_ocr_extractor, file_path)
+        self.api_worker.finished.connect(self.on_api_entry_finished)
+        self.api_worker.error.connect(self.on_api_entry_error)
+        self.api_worker.progress.connect(self.on_api_entry_progress)
+        self.api_worker.start()
+    
+    def on_api_entry_progress(self, message):
+        """API 识别进度更新"""
+        self.progress_bar.setFormat(message)
     
     def on_api_entry_finished(self, data):
         """API 识别完成"""
@@ -589,8 +563,39 @@ class FullscreenDataEntryWindow(QWidget):
                 f"</div>"
             )
     
+    def on_template_entry_finished(self, data):
+        """模板识别完成"""
+        # 显示模板并填充识别结果
+        self.current_data = data if data is not None else pd.DataFrame()
+        self.display_data_with_template(self.current_data)
+        self.save_btn.setEnabled(True)
+        
+        # 显示识别结果提示
+        self.assist_result_scroll.setVisible(True)
+        
+        if data is not None and not data.empty:
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;'>"
+                f"<b>✓ 模板识别完成</b><br>"
+                f"识别到 {len(data)} 个数据项 ({len(data)/71*100:.1f}%)<br>"
+                f"<span style='color: #666;'>请核对识别结果并修正错误</span>"
+                f"</div>"
+            )
+        else:
+            self.assist_result_label.setText(
+                f"<div style='padding: 10px; background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px;'>"
+                f"<b>⚠ 未识别到数据</b><br>"
+                f"<span style='color: #666;'>请手动填写所有数据</span>"
+                f"</div>"
+            )
+    
+    def on_api_entry_error(self, error_msg):
+        """API 识别错误"""
+        self.progress_bar.setVisible(False)
+        QMessageBox.critical(self, "错误", f"API 识别失败：{error_msg}")
+    
     def display_data_with_template(self, assisted_data):
-        """显示完整的数据模板，并填充辅助识别的数据"""
+        """显示完整的数据模板，并填充识别的数据"""
         try:
             # 定义所有 71 个数据项
             all_items = []
@@ -624,17 +629,30 @@ class FullscreenDataEntryWindow(QWidget):
                         'category': f'Z-Plane {module}'
                     })
             
-            # 如果有辅助识别数据，填充到模板中
+            # 如果有识别数据，填充到模板中
             if assisted_data is not None and not assisted_data.empty:
+                # 创建名称映射字典（处理命名差异）
+                api_dict = {}
                 for _, row in assisted_data.iterrows():
-                    item_name = row.get('item_name', '')
+                    api_name = row.get('item_name', '')
                     value = row.get('value', '')
+                    api_dict[api_name] = value
                     
-                    # 查找匹配的数据项
-                    for item in all_items:
-                        if item['item_name'] == item_name:
-                            item['value'] = str(value) if value != '' else ''
-                            break
+                    # 为模板识别创建名称映射
+                    # 模板格式: Z-Plane-A-Current-1, Z-Plane-A-ISOTemp-1
+                    # 表格格式: Z-Plane A-Current-1, Z-Plane A-ISO Temp-1
+                    if 'Z-Plane-' in api_name:
+                        # Z-Plane-A-Current-1 -> Z-Plane A-Current-1
+                        normalized = api_name.replace('Z-Plane-', 'Z-Plane ')
+                        # Z-Plane A-ISOTemp-1 -> Z-Plane A-ISO Temp-1
+                        normalized = normalized.replace('-ISOTemp-', '-ISO Temp-')
+                        api_dict[normalized] = value
+                
+                # 查找匹配的数据项
+                for item in all_items:
+                    if item['item_name'] in api_dict:
+                        value = api_dict[item['item_name']]
+                        item['value'] = str(value) if value != '' else ''
             
             # 显示到表格
             self.data_table.setRowCount(len(all_items))
@@ -649,10 +667,10 @@ class FullscreenDataEntryWindow(QWidget):
                     
                     # 数值（可编辑）
                     value_item = QTableWidgetItem(item['value'])
-                    # 如果是辅助识别填充的数据，使用浅黄色背景提示用户核对
+                    # 如果是识别填充的数据，使用浅黄色背景提示用户核对
                     if item['value']:
                         value_item.setBackground(Qt.GlobalColor.yellow)
-                        value_item.setToolTip("辅助识别的数据，请核对")
+                        value_item.setToolTip("识别的数据，请核对")
                     else:
                         value_item.setBackground(Qt.GlobalColor.white)
                     self.data_table.setItem(row, 1, value_item)

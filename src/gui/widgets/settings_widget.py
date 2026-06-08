@@ -69,10 +69,10 @@ class SettingsWidget(QWidget):
         
         # Max Tokens
         self.api_max_tokens_spin = QSpinBox()
-        self.api_max_tokens_spin.setRange(512, 8192)
+        self.api_max_tokens_spin.setRange(512, 16384)
         self.api_max_tokens_spin.setSingleStep(512)
-        self.api_max_tokens_spin.setValue(4096)
-        self.api_max_tokens_spin.setToolTip("最大输出token数，建议4096以上以确保完整输出所有数据")
+        self.api_max_tokens_spin.setValue(8000)
+        self.api_max_tokens_spin.setToolTip("最大输出token数，建议8000以上以确保完整输出所有71项数据")
         api_layout.addRow("Max Tokens：", self.api_max_tokens_spin)
         
         # 保存 API 配置按钮
@@ -92,27 +92,6 @@ class SettingsWidget(QWidget):
         
         api_group.setLayout(api_layout)
         layout.addWidget(api_group)
-        
-        # 深度学习模型设置
-        dl_group = QGroupBox("🤖 深度学习模型设置")
-        dl_layout = QFormLayout()
-        
-        # 启用/禁用深度学习模型
-        self.enable_dl_checkbox = QCheckBox("启用深度学习辅助识别")
-        dl_layout.addRow("", self.enable_dl_checkbox)
-        
-        # 模型状态
-        self.dl_status_label = QLabel()
-        self.dl_status_label.setWordWrap(True)
-        dl_layout.addRow("模型状态：", self.dl_status_label)
-        
-        # 模型路径
-        self.dl_model_path_label = QLabel()
-        self.dl_model_path_label.setWordWrap(True)
-        dl_layout.addRow("模型文件：", self.dl_model_path_label)
-        
-        dl_group.setLayout(dl_layout)
-        layout.addWidget(dl_group)
         
         # 灵敏度设置
         sensitivity_group = QGroupBox("📊 灵敏度阈值设置")
@@ -207,7 +186,7 @@ class SettingsWidget(QWidget):
                     
                     # 从 payload_template 中获取 max_tokens
                     payload_template = extra_params.get('payload_template', {})
-                    max_tokens = payload_template.get('max_tokens', 4096)
+                    max_tokens = payload_template.get('max_tokens', 8000)
                     self.api_max_tokens_spin.setValue(max_tokens)
                     
                     # 更新状态
@@ -227,44 +206,7 @@ class SettingsWidget(QWidget):
             self.api_url_edit.setText("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
             self.api_model_edit.setText("qwen-vl-max")
         
-        # 检查深度学习模型状态
-        self.check_dl_model_status()
-    
-    def check_dl_model_status(self):
-        """检查深度学习模型状态"""
-        try:
-            import torch
-            torch_available = True
-        except ImportError:
-            torch_available = False
-        
-        model_path = Path("models/digit_ocr_model.pth")
-        coordinates_path = Path("models/coordinates.json")
-        
-        if not torch_available:
-            self.dl_status_label.setText("❌ PyTorch 未安装")
-            self.dl_status_label.setStyleSheet("color: red;")
-            self.enable_dl_checkbox.setEnabled(False)
-            self.enable_dl_checkbox.setChecked(False)
-            self.dl_model_path_label.setText("请安装: pip install torch torchvision")
-        elif not model_path.exists():
-            self.dl_status_label.setText("⚠️ 模型文件不存在")
-            self.dl_status_label.setStyleSheet("color: orange;")
-            self.enable_dl_checkbox.setEnabled(False)
-            self.enable_dl_checkbox.setChecked(False)
-            self.dl_model_path_label.setText(f"模型路径: {model_path}\n请先训练模型")
-        elif not coordinates_path.exists():
-            self.dl_status_label.setText("⚠️ 坐标文件不存在")
-            self.dl_status_label.setStyleSheet("color: orange;")
-            self.enable_dl_checkbox.setEnabled(False)
-            self.enable_dl_checkbox.setChecked(False)
-            self.dl_model_path_label.setText(f"坐标路径: {coordinates_path}\n请先提取坐标")
-        else:
-            self.dl_status_label.setText("✅ 模型可用")
-            self.dl_status_label.setStyleSheet("color: green;")
-            self.enable_dl_checkbox.setEnabled(True)
-            self.enable_dl_checkbox.setChecked(True)
-            self.dl_model_path_label.setText(f"模型路径: {model_path}")
+        # 检查深度学习模型状态已移除
     
     def toggle_api_key_visibility(self):
         """切换 API Key 显示/隐藏"""
@@ -315,7 +257,7 @@ class SettingsWidget(QWidget):
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "识别图中COMBINER ISO TEMPERATURES(AZ,BZ,CZ,DZ,AB,CD,ABCD)和Z-Plane数据(A/B/C/D模块各8行)。\n\n⚠️关键:看表头!每个Z-Plane表格有4列:Current|Temp|ISO Gate|ISO Temp。只读取Current列(第1列,值约7-8)和ISO Temp列(第4列最右侧,值约40-60)。\n\n示例:Z-Plane A第1行: Current=7.2(读), Temp=48(跳过), Gate=-0.9(跳过), ISO Temp=40(读)\n\n返回JSON格式:\n{\"data\":[{\"item_name\":\"AZ\",\"value\":30.0,\"unit\":\"°C\"},{\"item_name\":\"Z-Plane A-Current-1\",\"value\":7.2,\"unit\":\"A\"},{\"item_name\":\"Z-Plane A-ISO Temp-1\",\"value\":40.0,\"unit\":\"°C\"}]}\n\n要求:纯JSON,不用markdown,value为数字,ISO Temp是最右侧独立列,按COMBINER->Z-Plane A->B->C->D顺序"
+                                    "text": "仔细识别图片中的所有数字。\n\n第一部分：COMBINER ISO TEMPERATURES（图片上方）\n识别7个温度：AZ,BZ,CZ,DZ,AB,CD,ABCD\n\n第二部分：Z-Plane数据（图片下方4个表格A/B/C/D）\n每个表格8行，每行读2个值：\n- Current列（第1列）：约7-8A\n- ISO Temp列（第4列最右侧）：约40-60°C\n跳过中间的Temp和ISO Gate列\n\n返回纯JSON（不要markdown）：\n{\"data\":[{\"item_name\":\"AZ\",\"value\":实际数字,\"unit\":\"°C\"},...全部71项]}\n\n重要：value必须是图片中实际看到的数字，不要猜测！必须识别全部71项。"
                                 },
                                 {
                                     "type": "image_url",

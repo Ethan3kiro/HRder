@@ -66,7 +66,7 @@ class DashboardWidget(QWidget):
         info = QLabel(
             "欢迎使用发射机数据分析器！\n\n"
             "✓ 支持多设备管理\n"
-            "✓ OCR 自动识别\n"
+            "✓ AI API 自动识别\n"
             "✓ 数据对比分析\n"
             "✓ 趋势可视化\n\n"
             "点击左侧菜单开始使用"

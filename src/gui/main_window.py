@@ -26,15 +26,13 @@ class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
     
     def __init__(self, database, device_manager, settings_manager, 
-                 ocr_extractor, analyzer, visualizer, exporter, dl_ocr_extractor=None):
+                 analyzer, visualizer, exporter):
         super().__init__()
         
         # 保存模块引用
         self.database = database
         self.device_manager = device_manager
         self.settings_manager = settings_manager
-        self.ocr_extractor = ocr_extractor
-        self.dl_ocr_extractor = dl_ocr_extractor
         self.analyzer = analyzer
         self.visualizer = visualizer
         self.exporter = exporter
@@ -161,8 +159,7 @@ class MainWindow(QMainWindow):
         
         # 数据录入
         self.data_entry_widget = DataEntryWidget(
-            self.ocr_extractor, self.database, self.device_manager, self.settings_manager,
-            dl_ocr_extractor=self.dl_ocr_extractor
+            self.database, self.device_manager, self.settings_manager
         )
         self.content_stack.addWidget(self.data_entry_widget)
         

@@ -1,9 +1,11 @@
 # 发射机数据分析器 - 生产环境依赖
 
-# OCR相关
-pytesseract>=0.3.13  # 0.3.13+ 兼容 Python 3.14
+# 图像处理（用于模板OCR和API识别）
 Pillow>=10.0.0
-opencv-python>=4.8.0  # 可选：用于更高质量的图像预处理
+opencv-python>=4.8.0
+
+# OCR 识别（模板匹配方案）
+pytesseract>=0.3.13
 
 # 数据处理
 pandas>=2.0.0

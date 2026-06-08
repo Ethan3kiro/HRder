@@ -1,122 +1,82 @@
 #!/usr/bin/env python3
 """
-发射机数据分析器 - GUI 主程序
-图形用户界面入口
+Harris Reader GUI - 图形界面启动文件
 """
-
 import sys
 from pathlib import Path
-from PyQt6.QtWidgets import QApplication, QMessageBox
 
-# 添加 src 到路径
-sys.path.insert(0, str(Path(__file__).parent))
+from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtCore import Qt
 
 from src.database import TransmitterDatabase
 from src.device_manager import DeviceManager
 from src.settings_manager import SettingsManager
-from src.ocr_extractor_v8 import OCRExtractorV8 as OCRExtractor
 from src.analyzer import DataAnalyzer
 from src.visualizer import DataVisualizer
 from src.exporter import DataExporter
-from src.logging_config import setup_logging
+from src.gui.main_window import MainWindow
+from src.gui.styles import get_theme
 from src.config import Config
+from src.logging_config import setup_logging
 
 
 def main():
     """主函数"""
-    # 初始化日志
-    logger = setup_logging()
-    logger.info("=" * 60)
-    logger.info("发射机数据分析器 GUI v0.1.0 启动")
-    logger.info("=" * 60)
-    
-    # 创建应用
-    app = QApplication(sys.argv)
-    app.setApplicationName("发射机数据分析器")
-    app.setOrganizationName("TransmitterAnalyzer")
-    
     try:
+        # 设置日志
+        setup_logging(log_level="INFO")
+        
+        # 创建应用
+        app = QApplication(sys.argv)
+        app.setApplicationName("Harris Reader")
+        app.setApplicationVersion(Config.VERSION)
+        
+        # PyQt6 默认启用高DPI支持，无需手动设置
+        
         # 初始化数据库
         db_path = Config.get_default_db_path()
-        logger.info(f"数据库路径: {db_path}")
         database = TransmitterDatabase(db_path)
-        database.initialize_database()
         
         # 初始化管理器
         device_manager = DeviceManager(database)
         settings_manager = SettingsManager(database)
         
-        # 确保有默认设备
-        devices = device_manager.get_all_devices()
-        if not devices:
-            logger.info("创建默认设备...")
-            device_manager.add_device("默认设备", "系统自动创建的默认设备")
-            devices = device_manager.get_all_devices()
-        
-        # 设置当前设备
-        current_device_id = settings_manager.get_current_device_id()
-        if not current_device_id and devices:
-            settings_manager.set_current_device_id(devices[0]['id'])
-            logger.info(f"设置默认设备: {devices[0]['name']}")
-        
-        # 初始化其他模块
-        try:
-            ocr_extractor = OCRExtractor()
-            logger.info("✓ OCR 提取器初始化成功")
-        except Exception as e:
-            logger.warning(f"OCR 提取器初始化失败: {e}")
-            ocr_extractor = None
-        
-        # 初始化深度学习 OCR 提取器
-        try:
-            from src.dl_ocr_extractor import DLOCRExtractor
-            if DLOCRExtractor.is_available():
-                dl_ocr_extractor = DLOCRExtractor()
-                logger.info("✓ 深度学习 OCR 提取器初始化成功")
-            else:
-                dl_ocr_extractor = None
-                logger.info("深度学习 OCR 模型不可用（模型文件不存在）")
-        except Exception as e:
-            logger.warning(f"深度学习 OCR 提取器初始化失败: {e}")
-            dl_ocr_extractor = None
-        
+        # 初始化分析和可视化
         analyzer = DataAnalyzer(database)
         visualizer = DataVisualizer(database)
-        exporter = DataExporter()
+        exporter = DataExporter()  # DataExporter 不需要参数
         
-        logger.info("✓ 所有模块初始化完成")
-        
-        # 导入并创建主窗口（延迟导入以加快启动速度）
-        from src.gui.main_window import MainWindow
-        
+        # 创建主窗口（不再需要OCR和DL提取器）
         window = MainWindow(
             database=database,
             device_manager=device_manager,
             settings_manager=settings_manager,
-            ocr_extractor=ocr_extractor,
             analyzer=analyzer,
             visualizer=visualizer,
-            exporter=exporter,
-            dl_ocr_extractor=dl_ocr_extractor
+            exporter=exporter
         )
         
+        # 应用样式
+        app.setStyleSheet(get_theme("light"))
+        
+        # 显示窗口
         window.show()
-        logger.info("✓ GUI 窗口已显示")
         
         # 运行应用
         sys.exit(app.exec())
         
     except Exception as e:
-        logger.exception(f"启动失败: {e}")
-        
         # 显示错误对话框
-        error_box = QMessageBox()
-        error_box.setIcon(QMessageBox.Icon.Critical)
-        error_box.setWindowTitle("启动失败")
-        error_box.setText(f"应用启动失败：\n\n{str(e)}")
-        error_box.setDetailedText(str(e))
-        error_box.exec()
+        app = QApplication.instance()
+        if app is None:
+            app = QApplication(sys.argv)
         
+        QMessageBox.critical(
+            None,
+            "启动错误",
+            f"程序启动失败：\n\n{str(e)}\n\n"
+            f"请检查日志文件获取详细信息。"
+        )
         sys.exit(1)
 
 
