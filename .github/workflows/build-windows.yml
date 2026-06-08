@@ -35,11 +35,11 @@ jobs:
         mkdir release
         copy dist\HarrisReader.exe release\
         copy README.md release\
-        if exist "如何使用API识别.md" copy "如何使用API识别.md" release\
-        if exist "API密钥配置快速参考.txt" copy "API密钥配置快速参考.txt" release\
-        if exist config xcopy /E /I config release\config
-        if exist examples xcopy /E /I examples release\examples
-        echo "HarrisReader v${{ github.ref_name }}" > release\VERSION.txt
+        if exist "如何使用API识别.md" (copy "如何使用API识别.md" release\)
+        if exist "API密钥配置快速参考.txt" (copy "API密钥配置快速参考.txt" release\)
+        if exist config (xcopy /E /I config release\config)
+        if exist examples (xcopy /E /I examples release\examples)
+        echo HarrisReader v${{ github.ref_name }} > release\VERSION.txt
     
     - name: Create ZIP archive
       run: |
