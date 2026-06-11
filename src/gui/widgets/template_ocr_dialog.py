@@ -12,7 +12,7 @@
 
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QSlider, QGroupBox, QMessageBox, QProgressBar
+    QLabel, QSlider, QGroupBox, QMessageBox, QProgressBar, QScrollArea, QWidget
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QPen, QColor, QFont
@@ -259,23 +259,36 @@ class TemplateOCRDialog(QDialog):
         title.setStyleSheet("font-size: 18px; font-weight: bold; padding: 10px;")
         layout.addWidget(title)
         
+        # 创建滚动区域包裹所有内容
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
+        # 滚动区域内容容器
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        
         # 图片显示区域
         self.alignment_widget = AlignmentWidget()
-        layout.addWidget(self.alignment_widget)
+        scroll_layout.addWidget(self.alignment_widget)
         
         # 控制面板
         controls = self._create_controls()
-        layout.addWidget(controls)
+        scroll_layout.addWidget(controls)
         
         # 进度条
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        layout.addWidget(self.progress_bar)
+        scroll_layout.addWidget(self.progress_bar)
         
         # 状态标签
         self.status_label = QLabel("使用方向键微调图片位置，使绿色框对准数据区域")
         self.status_label.setStyleSheet("padding: 5px; color: #888;")
-        layout.addWidget(self.status_label)
+        scroll_layout.addWidget(self.status_label)
+        
+        # 设置滚动内容
+        scroll.setWidget(scroll_content)
+        layout.addWidget(scroll)
     
     def _create_controls(self) -> QGroupBox:
         """创建控制面板"""
