@@ -83,20 +83,26 @@ class TemplateOCRExtractor:
                 logger.info(f"使用已配置的 Tesseract 路径: {current_path}")
                 return
         
-        # 优先查找打包后的 Tesseract（PyInstaller）
+        # 优先查找与 EXE 同级的 tesseract 文件夹（适用于打包版本）
         if getattr(sys, 'frozen', False):
             # 打包后的 EXE 环境
             base_path = Path(sys.executable).parent
-            bundled_tesseract = base_path / 'tesseract' / 'tesseract.exe'
-            
-            if bundled_tesseract.exists():
-                pytesseract.pytesseract.tesseract_cmd = str(bundled_tesseract)
-                # 设置 tessdata 路径
-                os.environ['TESSDATA_PREFIX'] = str(base_path / 'tesseract' / 'tessdata')
-                logger.info(f"✓ 使用打包的 Tesseract: {bundled_tesseract}")
-                return
+        else:
+            # 开发环境
+            base_path = Path(__file__).parent.parent
         
-        # Windows 系统需要设置路径
+        # 查找与程序同级的 tesseract 文件夹
+        bundled_tesseract = base_path / 'tesseract' / 'tesseract.exe'
+        if bundled_tesseract.exists():
+            pytesseract.pytesseract.tesseract_cmd = str(bundled_tesseract)
+            # 设置 tessdata 路径
+            tessdata_path = base_path / 'tesseract' / 'tessdata'
+            if tessdata_path.exists():
+                os.environ['TESSDATA_PREFIX'] = str(tessdata_path)
+            logger.info(f"✓ 使用打包的 Tesseract: {bundled_tesseract}")
+            return
+        
+        # Windows 系统查找系统安装的 Tesseract
         if sys.platform == 'win32':
             # 常见的 Tesseract 安装路径
             possible_paths = [
@@ -113,13 +119,12 @@ class TemplateOCRExtractor:
             for path in possible_paths:
                 if Path(path).exists():
                     pytesseract.pytesseract.tesseract_cmd = path
-                    logger.info(f"✓ 找到 Tesseract: {path}")
+                    logger.info(f"✓ 找到系统安装的 Tesseract: {path}")
                     return
             
             # 如果都找不到，记录警告但继续（可能在PATH中）
             logger.warning("未找到 Tesseract 安装路径，尝试使用系统 PATH")
-            logger.warning("如果 OCR 识别失败，请确保 Tesseract 已正确安装")
-            logger.warning("推荐安装路径: C:\\Program Files\\Tesseract-OCR")
+            logger.warning("如果 OCR 识别失败，请确保 Tesseract 已正确安装或与程序同级存在 tesseract 文件夹")
         else:
             # macOS/Linux 通常在 PATH 中
             logger.info("非 Windows 系统，使用系统 PATH 中的 tesseract")
