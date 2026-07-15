@@ -3,6 +3,7 @@
 Harris Reader GUI - 图形界面启动文件
 """
 import sys
+import os
 from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
@@ -20,9 +21,23 @@ from src.config import Config
 from src.logging_config import setup_logging
 
 
+def get_base_path():
+    """获取程序基础路径，兼容PyInstaller打包"""
+    if getattr(sys, 'frozen', False):
+        # 如果是打包后的exe，使用exe所在目录
+        return Path(sys.executable).parent
+    else:
+        # 如果是源码运行，使用当前文件所在目录
+        return Path(__file__).parent
+
+
 def main():
     """主函数"""
     try:
+        # 设置工作目录为程序所在目录
+        base_path = get_base_path()
+        os.chdir(base_path)
+        
         # 设置日志
         setup_logging(log_level="INFO")
         
