@@ -38,23 +38,29 @@ jobs:
         # 创建 PyInstaller spec 文件
         cat > HarrisReader.spec << 'EOF'
         # -*- mode: python ; coding: utf-8 -*-
+        import os
 
         block_cipher = None
+
+        # 只添加存在的数据文件夹
+        datas = []
+        if os.path.exists('config'):
+            datas.append(('config', 'config'))
+        if os.path.exists('docs'):
+            datas.append(('docs', 'docs'))
 
         a = Analysis(
             ['main_gui.py'],
             pathex=[],
             binaries=[],
-            datas=[
-                ('config', 'config'),
-                ('models', 'models'),
-                ('docs', 'docs'),
-            ],
+            datas=datas,
             hiddenimports=[
                 'PyQt6.QtCore',
                 'PyQt6.QtGui',
                 'PyQt6.QtWidgets',
+                'PyQt6.sip',
                 'PIL',
+                'PIL.Image',
                 'cv2',
                 'numpy',
                 'pandas',
@@ -63,6 +69,9 @@ jobs:
                 'xlsxwriter',
                 'plotly',
                 'matplotlib',
+                'sqlite3',
+                'json',
+                'pathlib',
             ],
             hookspath=[],
             hooksconfig={},
