@@ -1,0 +1,154 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'  # 使用稳定版本
+    
+    - name: Install system dependencies
+      run: |
+        # 下载并安装 Tesseract OCR
+        choco install tesseract -y
+        echo "Tesseract installed"
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-gui.txt
+        pip install pyinstaller
+    
+    - name: Create spec file for PyInstaller
+      run: |
+        # 创建 PyInstaller spec 文件
+        cat > HarrisReader.spec << 'EOF'
+        # -*- mode: python ; coding: utf-8 -*-
+
+        block_cipher = None
+
+        a = Analysis(
+            ['main_gui.py'],
+            pathex=[],
+            binaries=[],
+            datas=[
+                ('config', 'config'),
+                ('models', 'models'),
+                ('docs', 'docs'),
+            ],
+            hiddenimports=[
+                'PyQt6.QtCore',
+                'PyQt6.QtGui',
+                'PyQt6.QtWidgets',
+                'PIL',
+                'cv2',
+                'numpy',
+                'pandas',
+                'pytesseract',
+                'openpyxl',
+                'xlsxwriter',
+                'plotly',
+                'matplotlib',
+            ],
+            hookspath=[],
+            hooksconfig={},
+            runtime_hooks=[],
+            excludes=[],
+            win_no_prefer_redirects=False,
+            win_private_assemblies=False,
+            cipher=block_cipher,
+            noarchive=False,
+        )
+
+        pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+        exe = EXE(
+            pyz,
+            a.scripts,
+            a.binaries,
+            a.zipfiles,
+            a.datas,
+            [],
+            name='HarrisReader',
+            debug=False,
+            bootloader_ignore_signals=False,
+            strip=False,
+            upx=True,
+            upx_exclude=[],
+            runtime_tmpdir=None,
+            console=False,  # 不显示控制台窗口
+            disable_windowed_traceback=False,
+            argv_emulation=False,
+            target_arch=None,
+            codesign_identity=None,
+            entitlements_file=None,
+            icon=None,
+        )
+        EOF
+      shell: bash
+    
+    - name: Build EXE with PyInstaller
+      run: |
+        pyinstaller HarrisReader.spec --noconfirm
+    
+    - name: Create distribution folder
+      run: |
+        mkdir HarrisReader-Windows
+        cp dist/HarrisReader.exe HarrisReader-Windows/
+        cp README.md HarrisReader-Windows/
+        
+        # 创建使用说明
+        echo "# HarrisReader - Windows 版本" > HarrisReader-Windows/使用说明.txt
+        echo "" >> HarrisReader-Windows/使用说明.txt
+        echo "## 系统要求" >> HarrisReader-Windows/使用说明.txt
+        echo "- Windows 10 或更高版本" >> HarrisReader-Windows/使用说明.txt
+        echo "- 需要安装 Tesseract OCR" >> HarrisReader-Windows/使用说明.txt
+        echo "" >> HarrisReader-Windows/使用说明.txt
+        echo "## 安装 Tesseract OCR" >> HarrisReader-Windows/使用说明.txt
+        echo "1. 下载: https://github.com/UB-Mannheim/tesseract/wiki" >> HarrisReader-Windows/使用说明.txt
+        echo "2. 安装到默认路径: C:\Program Files\Tesseract-OCR" >> HarrisReader-Windows/使用说明.txt
+        echo "3. 或者使用 Chocolatey: choco install tesseract" >> HarrisReader-Windows/使用说明.txt
+        echo "" >> HarrisReader-Windows/使用说明.txt
+        echo "## 使用方法" >> HarrisReader-Windows/使用说明.txt
+        echo "1. 双击 HarrisReader.exe 启动程序" >> HarrisReader-Windows/使用说明.txt
+        echo "2. 首次运行需要配置设备和坐标模板" >> HarrisReader-Windows/使用说明.txt
+        echo "3. 详细文档请查看 README.md" >> HarrisReader-Windows/使用说明.txt
+        
+        # 复制配置文件夹（如果存在）
+        if exist config mkdir HarrisReader-Windows\config
+        if exist models mkdir HarrisReader-Windows\models
+      shell: cmd
+    
+    - name: Compress distribution
+      run: |
+        Compress-Archive -Path HarrisReader-Windows -DestinationPath HarrisReader-Windows.zip
+      shell: powershell
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HarrisReader-Windows
+        path: HarrisReader-Windows.zip
+        retention-days: 30
+    
+    - name: Create Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: HarrisReader-Windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

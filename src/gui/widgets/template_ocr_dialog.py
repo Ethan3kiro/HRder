@@ -251,114 +251,227 @@ class TemplateOCRDialog(QDialog):
             self.reject()
     
     def init_ui(self):
-        """初始化UI"""
-        layout = QVBoxLayout(self)
+        """初始化UI - 左右布局，无滚动区域"""
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 15, 10)  # 增加右边距
+        main_layout.setSpacing(10)
         
-        # 标题
+        # 标题栏
+        title_layout = QHBoxLayout()
         title = QLabel("📸 图片对齐和识别")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; padding: 10px;")
-        layout.addWidget(title)
+        title.setStyleSheet("font-size: 18px; font-weight: bold;")
+        title_layout.addWidget(title)
         
-        # 创建滚动区域包裹所有内容
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        title_layout.addStretch()
         
-        # 滚动区域内容容器
-        scroll_content = QWidget()
-        scroll_layout = QVBoxLayout(scroll_content)
+        # 状态标签（移到标题栏）
+        self.status_label = QLabel("使用方向键微调图片位置，使绿色框对准数据区域")
+        self.status_label.setStyleSheet("padding: 5px; color: #888; font-size: 12px;")
+        title_layout.addWidget(self.status_label)
         
-        # 图片显示区域
-        self.alignment_widget = AlignmentWidget()
-        scroll_layout.addWidget(self.alignment_widget)
+        main_layout.addLayout(title_layout)
         
-        # 控制面板
-        controls = self._create_controls()
-        scroll_layout.addWidget(controls)
-        
-        # 进度条
+        # 进度条（移到标题栏下方）
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        scroll_layout.addWidget(self.progress_bar)
+        self.progress_bar.setMaximumHeight(20)
+        main_layout.addWidget(self.progress_bar)
         
-        # 状态标签
-        self.status_label = QLabel("使用方向键微调图片位置，使绿色框对准数据区域")
-        self.status_label.setStyleSheet("padding: 5px; color: #888;")
-        scroll_layout.addWidget(self.status_label)
+        # 主内容区域 - 左右布局（无滚动区域）
+        content_layout = QHBoxLayout()
+        content_layout.setSpacing(15)
         
-        # 设置滚动内容
-        scroll.setWidget(scroll_content)
-        layout.addWidget(scroll)
+        # 左侧：图片显示（占70%宽度）
+        self.alignment_widget = AlignmentWidget()
+        self.alignment_widget.setMinimumSize(600, 500)
+        content_layout.addWidget(self.alignment_widget, 70)
+        
+        # 右侧：控制面板（占30%宽度）
+        right_panel = self._create_right_panel()
+        content_layout.addWidget(right_panel, 30)
+        
+        main_layout.addLayout(content_layout)
     
-    def _create_controls(self) -> QGroupBox:
-        """创建控制面板"""
-        group = QGroupBox("控制")
-        layout = QVBoxLayout(group)
+    def _create_right_panel(self) -> QWidget:
+        """创建右侧控制面板"""
+        panel = QWidget()
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(5, 0, 5, 0)
+        panel_layout.setSpacing(10)
         
-        # 偏移控制
-        offset_layout = QHBoxLayout()
-        offset_layout.addWidget(QLabel("偏移量:"))
+        # 偏移量显示
+        offset_group = QGroupBox("图片位置调整")
+        offset_layout = QVBoxLayout(offset_group)
+        offset_layout.setSpacing(8)
         
-        self.offset_label = QLabel(f"X: {self.alignment_widget.offset_x:+.1f}  Y: {self.alignment_widget.offset_y:+.1f}")
+        self.offset_label = QLabel(f"X: {self.alignment_widget.offset_x:+.1f}\nY: {self.alignment_widget.offset_y:+.1f}")
+        self.offset_label.setStyleSheet("font-size: 13px; font-weight: bold; padding: 5px;")
+        self.offset_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         offset_layout.addWidget(self.offset_label)
         
-        offset_layout.addStretch()
-        layout.addLayout(offset_layout)
+        help_label = QLabel(
+            "💡 使用方向键调整：\n"
+            "• 方向键: 移动1px\n"
+            "• Shift+方向键: 0.5px"
+        )
+        help_label.setStyleSheet("color: #666; font-size: 10px; padding: 5px;")
+        help_label.setWordWrap(True)
+        offset_layout.addWidget(help_label)
         
-        # 缩放控制（更精细）
-        scale_layout = QHBoxLayout()
-        scale_layout.addWidget(QLabel("缩放:"))
+        panel_layout.addWidget(offset_group)
+        
+        # 缩放控制
+        scale_group = QGroupBox("图片缩放")
+        scale_layout = QVBoxLayout(scale_group)
+        scale_layout.setSpacing(8)
+        
+        self.scale_label = QLabel("100.00%")
+        self.scale_label.setStyleSheet("font-size: 13px; font-weight: bold;")
+        self.scale_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scale_layout.addWidget(self.scale_label)
         
         self.scale_slider = QSlider(Qt.Orientation.Horizontal)
-        self.scale_slider.setMinimum(9800)  # 0.9800 (98%)
-        self.scale_slider.setMaximum(10200)  # 1.0200 (102%)
-        self.scale_slider.setValue(10000)  # 1.0000 (100%)
+        self.scale_slider.setMinimum(9800)  # 98%
+        self.scale_slider.setMaximum(10200)  # 102%
+        self.scale_slider.setValue(10000)  # 100%
         self.scale_slider.setTickInterval(10)
         self.scale_slider.valueChanged.connect(self.on_scale_changed)
         scale_layout.addWidget(self.scale_slider)
         
-        self.scale_label = QLabel("100.00%")
-        scale_layout.addWidget(self.scale_label)
+        scale_help = QLabel("98% ~ 102%")
+        scale_help.setStyleSheet("color: #666; font-size: 10px;")
+        scale_help.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scale_layout.addWidget(scale_help)
         
-        layout.addLayout(scale_layout)
+        panel_layout.addWidget(scale_group)
         
-        # 按钮
-        button_layout = QHBoxLayout()
+        # 操作按钮
+        actions_group = QGroupBox("操作")
+        actions_layout = QVBoxLayout(actions_group)
+        actions_layout.setSpacing(10)
         
-        fullscreen_btn = QPushButton("🖥️ 全屏模式")
-        fullscreen_btn.clicked.connect(self.toggle_fullscreen)
-        button_layout.addWidget(fullscreen_btn)
-        
+        # 测试识别按钮
         test_btn = QPushButton("🧪 测试识别")
         test_btn.clicked.connect(self.test_recognition)
-        button_layout.addWidget(test_btn)
+        test_btn.setMinimumHeight(40)
+        test_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 8px;
+                font-size: 13px;
+                font-weight: bold;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+        """)
+        actions_layout.addWidget(test_btn)
         
+        # 识别并填入按钮
         recognize_btn = QPushButton("✅ 识别并填入")
-        recognize_btn.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold;")
         recognize_btn.clicked.connect(self.recognize_and_accept)
-        button_layout.addWidget(recognize_btn)
+        recognize_btn.setMinimumHeight(45)
+        recognize_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """)
+        actions_layout.addWidget(recognize_btn)
         
-        reset_btn = QPushButton("🔄 重置")
+        # 重置按钮
+        reset_btn = QPushButton("🔄 重置对齐")
         reset_btn.clicked.connect(self.reset_alignment)
-        button_layout.addWidget(reset_btn)
+        reset_btn.setMinimumHeight(35)
+        reset_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #FF9800;
+                color: white;
+                border: none;
+                padding: 6px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #F57C00;
+            }
+        """)
+        actions_layout.addWidget(reset_btn)
         
+        # 全屏模式按钮
+        fullscreen_btn = QPushButton("🖥️ 全屏模式")
+        fullscreen_btn.clicked.connect(self.toggle_fullscreen)
+        fullscreen_btn.setMinimumHeight(35)
+        fullscreen_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #607D8B;
+                color: white;
+                border: none;
+                padding: 6px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #546E7A;
+            }
+        """)
+        actions_layout.addWidget(fullscreen_btn)
+        
+        # 取消按钮
         cancel_btn = QPushButton("❌ 取消")
         cancel_btn.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_btn)
+        cancel_btn.setMinimumHeight(35)
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                padding: 6px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #d32f2f;
+            }
+        """)
+        actions_layout.addWidget(cancel_btn)
         
-        layout.addLayout(button_layout)
+        panel_layout.addWidget(actions_group)
         
-        # 说明
-        help_text = QLabel(
-            "💡 提示：\n"
-            "   • 方向键：移动1像素\n"
-            "   • Shift+方向键：移动0.5像素（精细调整）\n"
-            "   • 黄色框=参照物，绿色框=数据区域"
+        # 提示信息
+        tip_label = QLabel(
+            "📌 提示：\n"
+            "黄色框 = 参照物\n"
+            "绿色框 = 数据区域\n\n"
+            "调整图片使绿色框\n"
+            "精确对齐数据位置"
         )
-        help_text.setStyleSheet("color: #666; font-size: 11px; padding: 10px;")
-        layout.addWidget(help_text)
+        tip_label.setStyleSheet(
+            "color: #666; font-size: 10px; padding: 10px; "
+            "background-color: #f5f5f5; border-radius: 4px;"
+        )
+        tip_label.setWordWrap(True)
+        panel_layout.addWidget(tip_label)
         
-        return group
+        panel_layout.addStretch()  # 底部留白
+        
+        return panel
+    
+    def _create_controls(self) -> QGroupBox:
+        """保留此方法以避免错误（已废弃）"""
+        # 此方法已被 _create_right_panel 替代
+        return QGroupBox()
     
     def keyPressEvent(self, event):
         """键盘事件"""
@@ -392,7 +505,7 @@ class TemplateOCRDialog(QDialog):
     def update_offset_label(self):
         """更新偏移标签"""
         self.offset_label.setText(
-            f"X: {self.alignment_widget.offset_x:+.1f}  "
+            f"X: {self.alignment_widget.offset_x:+.1f}\n"
             f"Y: {self.alignment_widget.offset_y:+.1f}"
         )
     

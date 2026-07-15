@@ -301,7 +301,7 @@ class TemplateOCRExtractor:
         """
         Current字段专用预处理
         
-        Current字段通常是白色文字或浅色背景，使用灰度或简单Otsu效果最好
+        Current字段通常是白色文字或浅色背景，使用简单二值化效果最好
         """
         # 转灰度
         if len(roi.shape) == 3:
@@ -309,13 +309,16 @@ class TemplateOCRExtractor:
         else:
             gray = roi.copy()
         
-        return gray
+        # 使用简单二值化（Otsu自动阈值）
+        _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        return binary
     
     def _preprocess_for_temperature(self, roi: np.ndarray) -> np.ndarray:
         """
         Temperature字段专用预处理
         
-        Temperature字段使用自适应二值化效果最好
+        Temperature字段使用简单二值化效果更稳定
         """
         # 转灰度
         if len(roi.shape) == 3:
@@ -323,11 +326,8 @@ class TemplateOCRExtractor:
         else:
             gray = roi.copy()
         
-        # 自适应二值化
-        binary = cv2.adaptiveThreshold(
-            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY, 11, 2
-        )
+        # 使用简单二值化（Otsu自动阈值）- 比自适应二值化更稳定
+        _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         
         return binary
     

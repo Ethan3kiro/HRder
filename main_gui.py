@@ -36,6 +36,7 @@ def main():
         # 初始化数据库
         db_path = Config.get_default_db_path()
         database = TransmitterDatabase(db_path)
+        database.initialize_database()
         
         # 初始化管理器
         device_manager = DeviceManager(database)

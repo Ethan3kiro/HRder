@@ -107,7 +107,6 @@ class FullscreenDataEntryWindow(QWidget):
         self.file_path_edit = None
         self.image_label = None
         self.assist_result_label = None
-        self.assist_result_scroll = None  # 识别结果滚动区域
         self.data_table = None
         self.device_combo = None
         self.month_edit = None
@@ -129,7 +128,7 @@ class FullscreenDataEntryWindow(QWidget):
                 self.save_btn.setEnabled(True)
                 
                 # 显示识别结果提示
-                self.assist_result_scroll.setVisible(True)
+                self.assist_result_label.setVisible(True)
                 self.assist_result_label.setText(
                     f"<div style='padding: 10px; background-color: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;'>"
                     f"<b>✓ 已加载识别结果</b><br>"
@@ -148,7 +147,7 @@ class FullscreenDataEntryWindow(QWidget):
     
     def init_ui(self):
         """初始化 UI"""
-        self.setWindowTitle("数据录入 - 全屏模式")
+        self.setWindowTitle("数据录入 - 大屏模式")
         
         # Windows兼容性：使用普通窗口而不是真正的全屏
         # 设置窗口标志，确保在Windows上正常显示
@@ -159,69 +158,153 @@ class FullscreenDataEntryWindow(QWidget):
             Qt.WindowType.WindowCloseButtonHint  # 关闭按钮
         )
         
-        # 设置窗口大小和位置
+        # 设置窗口大小和位置（启动时最大化）
         self.setGeometry(50, 50, 1400, 900)
+        self.showMaximized()  # 启动时最大化
         
-        # 可选：启动时最大化窗口（而不是全屏）
-        # self.showMaximized()
-        
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
+        # 主布局 - 增加右边距
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 20, 10)  # 左上右下，增加右边距
+        main_layout.setSpacing(10)
         
         # 顶部工具栏
         toolbar = self.create_toolbar()
-        layout.addWidget(toolbar)
+        main_layout.addWidget(toolbar)
         
-        # 主内容区域 - 左右分栏
+        # 主内容区域 - 左右分栏（不使用滚动区域）
         content_layout = QHBoxLayout()
+        content_layout.setSpacing(15)  # 增加左右面板间距
         
-        # 左侧：原始截图（占 40% 宽度）
-        left_panel = self.create_image_panel()
-        content_layout.addWidget(left_panel, 2)  # 占 2 份
+        # 左侧：图片和操作按钮面板（占 40% 宽度）
+        left_panel = self.create_left_panel()
+        content_layout.addWidget(left_panel, 40)
         
-        # 右侧：数据表格（占 60% 宽度）
-        right_panel = self.create_data_panel()
-        content_layout.addWidget(right_panel, 3)  # 占 3 份
+        # 右侧：数据表格和保存按钮面板（占 60% 宽度）
+        right_panel = self.create_right_panel()
+        content_layout.addWidget(right_panel, 60)
         
-        layout.addLayout(content_layout)
+        main_layout.addLayout(content_layout)
         
         # 加载设备列表
         self.load_devices()
     
     def create_toolbar(self):
-        """创建顶部工具栏"""
+        """创建顶部工具栏（简化版）"""
         toolbar = QWidget()
         toolbar_layout = QHBoxLayout(toolbar)
         toolbar_layout.setContentsMargins(0, 0, 0, 10)
+        
+        # 标题
+        title_label = QLabel("📊 数据录入 - 大屏模式")
+        title_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;")
+        toolbar_layout.addWidget(title_label)
+        
+        toolbar_layout.addStretch()
+        
+        # 进度条
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setVisible(False)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setFixedWidth(300)
+        toolbar_layout.addWidget(self.progress_bar)
+        
+        toolbar_layout.addSpacing(20)
         
         # 返回按钮
         back_btn = QPushButton("← 返回")
         back_btn.clicked.connect(self.close)
         back_btn.setFixedWidth(100)
+        back_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f5f5f5;
+                border: 1px solid #ddd;
+                padding: 8px 16px;
+                font-size: 14px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #e0e0e0;
+            }
+        """)
         toolbar_layout.addWidget(back_btn)
         
-        toolbar_layout.addSpacing(20)
+        return toolbar
+    
+    def create_left_panel(self):
+        """创建左侧面板：图片 + 操作按钮"""
+        panel = QGroupBox("原始截图与操作")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setSpacing(10)
         
-        # 文件选择
-        toolbar_layout.addWidget(QLabel("截图文件："))
+        # 文件选择区域
+        file_group = QGroupBox("1. 选择图片文件")
+        file_layout = QVBoxLayout(file_group)
+        
+        file_select_layout = QHBoxLayout()
         self.file_path_edit = QLineEdit()
-        self.file_path_edit.setPlaceholderText("选择截图文件...")
+        self.file_path_edit.setPlaceholderText("点击浏览按钮选择截图文件...")
         self.file_path_edit.setReadOnly(True)
-        self.file_path_edit.setMinimumWidth(300)
-        toolbar_layout.addWidget(self.file_path_edit)
+        file_select_layout.addWidget(self.file_path_edit)
         
         browse_btn = QPushButton("📁 浏览")
         browse_btn.clicked.connect(self.browse_file)
-        toolbar_layout.addWidget(browse_btn)
+        browse_btn.setFixedWidth(100)
+        file_select_layout.addWidget(browse_btn)
         
-        toolbar_layout.addSpacing(20)
+        file_layout.addLayout(file_select_layout)
+        panel_layout.addWidget(file_group)
         
-        # 录入模式按钮
+        # 图像显示区域（不使用滚动，让图片自适应）
+        image_group = QGroupBox("2. 图片预览")
+        image_layout = QVBoxLayout(image_group)
+        
+        self.image_label = QLabel("选择图像后将在这里显示")
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_label.setStyleSheet(
+            "color: #999; padding: 40px; background-color: #f5f5f5; "
+            "border: 2px dashed #ccc; font-size: 14px;"
+        )
+        self.image_label.setScaledContents(False)
+        self.image_label.setMinimumHeight(400)
+        
+        image_layout.addWidget(self.image_label)
+        panel_layout.addWidget(image_group, 1)  # 让图片区域占据剩余空间
+        
+        # 识别结果提示区域
+        self.assist_result_label = QLabel("")
+        self.assist_result_label.setWordWrap(True)
+        self.assist_result_label.setVisible(False)
+        self.assist_result_label.setMaximumHeight(80)
+        panel_layout.addWidget(self.assist_result_label)
+        
+        # 操作按钮区域
+        action_group = QGroupBox("3. 选择识别方式")
+        action_layout = QVBoxLayout(action_group)
+        action_layout.setSpacing(10)
+        
         # 模板识别按钮
-        self.template_btn = QPushButton("🖼️ 模板识别")
+        self.template_btn = QPushButton("🖼️ 模板识别（推荐）")
         self.template_btn.clicked.connect(self.start_template_entry)
-        self.template_btn.setToolTip("使用本地模板匹配OCR识别（离线、快速）")
-        toolbar_layout.addWidget(self.template_btn)
+        self.template_btn.setToolTip("使用本地模板匹配OCR识别（离线、快速、准确率95%+）")
+        self.template_btn.setMinimumHeight(40)
+        self.template_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+            }
+        """)
+        action_layout.addWidget(self.template_btn)
         
         # API 识别按钮
         self.api_btn = QPushButton("🌐 API 识别")
@@ -229,116 +312,139 @@ class FullscreenDataEntryWindow(QWidget):
         if self.api_ocr_extractor:
             self.api_btn.setEnabled(True)
             provider = self.api_ocr_extractor.config.provider.upper()
-            self.api_btn.setToolTip(f"使用 {provider} API 识别")
+            self.api_btn.setToolTip(f"使用 {provider} API 识别（需要网络）")
         else:
             self.api_btn.setEnabled(False)
             self.api_btn.setToolTip("API 识别不可用\n请配置 config/api_config.json")
-        toolbar_layout.addWidget(self.api_btn)
+        self.api_btn.setMinimumHeight(40)
+        self.api_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2196f3;
+                color: white;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #1976d2;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+            }
+        """)
+        action_layout.addWidget(self.api_btn)
         
+        # 手动录入按钮
         self.manual_btn = QPushButton("✍️ 手动录入")
         self.manual_btn.clicked.connect(self.start_manual_entry)
         self.manual_btn.setToolTip("显示空白表格，完全手动填写")
-        toolbar_layout.addWidget(self.manual_btn)
+        self.manual_btn.setMinimumHeight(40)
+        self.manual_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #ff9800;
+                color: white;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #f57c00;
+            }
+        """)
+        action_layout.addWidget(self.manual_btn)
         
-        toolbar_layout.addSpacing(20)
-        
-        # 月份和设备
-        toolbar_layout.addWidget(QLabel("月份："))
-        self.month_edit = QLineEdit()
-        self.month_edit.setPlaceholderText("YYYY-MM")
-        self.month_edit.setFixedWidth(100)
-        toolbar_layout.addWidget(self.month_edit)
-        
-        toolbar_layout.addSpacing(10)
-        
-        toolbar_layout.addWidget(QLabel("设备："))
-        self.device_combo = QComboBox()
-        self.device_combo.setMinimumWidth(150)
-        toolbar_layout.addWidget(self.device_combo)
-        
-        toolbar_layout.addStretch()
-        
-        # 保存按钮
-        self.save_btn = QPushButton("💾 保存")
-        self.save_btn.clicked.connect(self.save_data)
-        self.save_btn.setEnabled(False)
-        self.save_btn.setFixedWidth(100)
-        toolbar_layout.addWidget(self.save_btn)
-        
-        # 进度条
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
-        self.progress_bar.setTextVisible(True)
-        self.progress_bar.setFixedWidth(200)
-        toolbar_layout.addWidget(self.progress_bar)
-        
-        return toolbar
-    
-    def create_image_panel(self):
-        """创建图像显示面板"""
-        panel = QGroupBox("原始截图")
-        layout = QVBoxLayout(panel)
-        
-        # 图像显示区域（带滚动）
-        image_scroll = QScrollArea()
-        image_scroll.setWidgetResizable(True)
-        image_scroll.setMinimumHeight(600)  # 增加最小高度
-        
-        self.image_label = QLabel("选择图像后将在这里显示")
-        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setStyleSheet(
-            "color: #999; padding: 40px; background-color: #f5f5f5; "
-            "border: 2px dashed #ccc; font-size: 16px;"
-        )
-        self.image_label.setScaledContents(False)
-        
-        image_scroll.setWidget(self.image_label)
-        layout.addWidget(image_scroll)
-        
-        # 识别结果提示（仅在 API 识别模式下显示）- 使用滚动区域
-        assist_scroll = QScrollArea()
-        assist_scroll.setWidgetResizable(True)
-        assist_scroll.setMaximumHeight(150)  # 限制最大高度
-        assist_scroll.setVisible(False)  # 默认隐藏
-        
-        self.assist_result_label = QLabel("")
-        self.assist_result_label.setWordWrap(True)
-        self.assist_result_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        
-        assist_scroll.setWidget(self.assist_result_label)
-        self.assist_result_scroll = assist_scroll  # 保存引用以便控制显示/隐藏
-        layout.addWidget(assist_scroll)
+        panel_layout.addWidget(action_group)
         
         return panel
     
-    def create_data_panel(self):
-        """创建数据面板（仅表格）"""
-        panel = QGroupBox("数据填写表格")
-        layout = QVBoxLayout(panel)
+    def create_right_panel(self):
+        """创建右侧面板：数据表格 + 保存区域"""
+        panel = QGroupBox("数据填写与保存")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setSpacing(10)
+        panel_layout.setContentsMargins(10, 15, 15, 10)  # 增加右边距
+        
+        # 数据表格
+        table_group = QGroupBox("4. 填写/核对数据")
+        table_layout = QVBoxLayout(table_group)
+        table_layout.setContentsMargins(5, 10, 5, 5)
         
         self.data_table = QTableWidget()
         self.data_table.setColumnCount(3)
         self.data_table.setHorizontalHeaderLabels(["数据项名称", "数值", "单位"])
         
-        # Windows兼容性：使用更保守的高度设置
-        # 不使用固定高度，让表格自适应
-        self.data_table.setMinimumHeight(600)
-        
-        # 滚动条策略
+        # 表格自适应高度，使用内置滚动条
+        self.data_table.setMinimumHeight(500)
         self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         
-        # 设置列宽
+        # 设置列宽 - 减小列宽以避免水平滚动
         header = self.data_table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)  # 数据项名称自适应
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)    # 数值列固定
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)    # 单位列固定
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
         
-        # 设置具体宽度
-        self.data_table.setColumnWidth(1, 120)  # 数值：120px
-        self.data_table.setColumnWidth(2, 60)   # 单位：60px
+        self.data_table.setColumnWidth(1, 100)  # 数值列减小到100px
+        self.data_table.setColumnWidth(2, 50)   # 单位列减小到50px
         
-        layout.addWidget(self.data_table)
+        table_layout.addWidget(self.data_table)
+        panel_layout.addWidget(table_group, 1)  # 表格占据大部分空间
+        
+        # 保存区域
+        save_group = QGroupBox("5. 保存数据")
+        save_layout = QVBoxLayout(save_group)
+        save_layout.setSpacing(8)
+        save_layout.setContentsMargins(10, 10, 10, 10)
+        
+        # 月份和设备（改为两行布局，避免宽度不够）
+        # 第一行：月份
+        month_layout = QHBoxLayout()
+        month_layout.addWidget(QLabel("月份："))
+        self.month_edit = QLineEdit()
+        self.month_edit.setPlaceholderText("YYYY-MM")
+        self.month_edit.setFixedWidth(120)
+        month_layout.addWidget(self.month_edit)
+        month_layout.addStretch()
+        save_layout.addLayout(month_layout)
+        
+        # 第二行：设备
+        device_layout = QHBoxLayout()
+        device_layout.addWidget(QLabel("设备："))
+        self.device_combo = QComboBox()
+        self.device_combo.setMinimumWidth(200)
+        device_layout.addWidget(self.device_combo)
+        device_layout.addStretch()
+        save_layout.addLayout(device_layout)
+        
+        # 保存按钮
+        self.save_btn = QPushButton("💾 保存到数据库")
+        self.save_btn.clicked.connect(self.save_data)
+        self.save_btn.setEnabled(False)
+        self.save_btn.setMinimumHeight(45)
+        self.save_btn.setMaximumHeight(45)
+        self.save_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666;
+            }
+        """)
+        save_layout.addWidget(self.save_btn)
+        
+        panel_layout.addWidget(save_group)
         
         return panel
     
@@ -497,7 +603,7 @@ class FullscreenDataEntryWindow(QWidget):
             return
         
         # 隐藏识别结果提示
-        self.assist_result_scroll.setVisible(False)
+        self.assist_result_label.setVisible(False)
         
         # 显示空白模板
         self.current_data = pd.DataFrame()
@@ -554,7 +660,7 @@ class FullscreenDataEntryWindow(QWidget):
         self.save_btn.setEnabled(True)
         
         # 显示识别结果提示
-        self.assist_result_scroll.setVisible(True)
+        self.assist_result_label.setVisible(True)
         
         if data is not None and not data.empty:
             provider = self.api_ocr_extractor.config.provider.upper()
@@ -581,7 +687,7 @@ class FullscreenDataEntryWindow(QWidget):
         self.save_btn.setEnabled(True)
         
         # 显示识别结果提示
-        self.assist_result_scroll.setVisible(True)
+        self.assist_result_label.setVisible(True)
         
         if data is not None and not data.empty:
             self.assist_result_label.setText(
