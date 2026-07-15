@@ -48,6 +48,20 @@ jobs:
             datas.append(('config', 'config'))
         if os.path.exists('docs'):
             datas.append(('docs', 'docs'))
+        
+        # 添加 Tesseract OCR 可执行文件和数据文件
+        # Chocolatey 安装路径
+        tesseract_path = r'C:\Program Files\Tesseract-OCR'
+        if os.path.exists(tesseract_path):
+            # 添加 tesseract.exe
+            tesseract_exe = os.path.join(tesseract_path, 'tesseract.exe')
+            if os.path.exists(tesseract_exe):
+                datas.append((tesseract_exe, 'tesseract'))
+            
+            # 添加 tessdata 文件夹（只需要 eng.traineddata）
+            tessdata_path = os.path.join(tesseract_path, 'tessdata')
+            if os.path.exists(tessdata_path):
+                datas.append((tessdata_path, 'tesseract/tessdata'))
 
         a = Analysis(
             ['main_gui.py'],
@@ -130,18 +144,15 @@ jobs:
         echo. >> HarrisReader-Windows\使用说明.txt
         echo 系统要求 >> HarrisReader-Windows\使用说明.txt
         echo - Windows 10 或更高版本 >> HarrisReader-Windows\使用说明.txt
-        echo - 需要安装 Tesseract OCR >> HarrisReader-Windows\使用说明.txt
-        echo. >> HarrisReader-Windows\使用说明.txt
-        echo 安装 Tesseract OCR >> HarrisReader-Windows\使用说明.txt
-        echo 1. 下载: https://github.com/UB-Mannheim/tesseract/wiki >> HarrisReader-Windows\使用说明.txt
-        echo 2. 安装到默认路径: C:\Program Files\Tesseract-OCR >> HarrisReader-Windows\使用说明.txt
-        echo 3. 或者使用 Chocolatey: choco install tesseract >> HarrisReader-Windows\使用说明.txt
+        echo - 无需额外安装依赖，开箱即用 >> HarrisReader-Windows\使用说明.txt
         echo. >> HarrisReader-Windows\使用说明.txt
         echo 使用方法 >> HarrisReader-Windows\使用说明.txt
-        echo 1. 双击 HarrisReader.exe 启动程序 >> HarrisReader-Windows\使用说明.txt
-        echo 2. 程序已预配置坐标模板，可直接使用 >> HarrisReader-Windows\使用说明.txt
-        echo 3. 配置文件位于 config 文件夹中 >> HarrisReader-Windows\使用说明.txt
-        echo 4. 详细文档请查看 README.md >> HarrisReader-Windows\使用说明.txt
+        echo 1. 解压 ZIP 文件到任意目录 >> HarrisReader-Windows\使用说明.txt
+        echo 2. 双击 HarrisReader.exe 启动程序 >> HarrisReader-Windows\使用说明.txt
+        echo 3. 程序已内置 Tesseract OCR 和预配置坐标模板 >> HarrisReader-Windows\使用说明.txt
+        echo 4. 可直接使用模板识别功能 >> HarrisReader-Windows\使用说明.txt
+        echo 5. 配置文件位于 config 文件夹中 >> HarrisReader-Windows\使用说明.txt
+        echo 6. 详细文档请查看 README.md >> HarrisReader-Windows\使用说明.txt
       shell: cmd
     
     - name: Compress distribution

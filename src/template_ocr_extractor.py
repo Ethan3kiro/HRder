@@ -43,6 +43,9 @@ class TemplateOCRExtractor:
         self.coords_file = coords_file or Path('config/template_coordinates.json')
         self.config = config or {}
         
+        # 设置 Tesseract 路径（Windows 打包版本需要）
+        self._setup_tesseract_path()
+        
         # Tesseract 配置
         self.tesseract_config = self.config.get(
             'tesseract_config',
@@ -67,6 +70,59 @@ class TemplateOCRExtractor:
         logger.info(f"  坐标文件: {self.coords_file}")
         logger.info(f"  预处理模式: {self.preprocess_mode}")
         logger.info(f"  已加载区域: {self._count_regions()} 个")
+    
+    def _setup_tesseract_path(self):
+        """设置 Tesseract 路径，支持 Windows 常见安装位置和打包版本"""
+        import sys
+        import os
+        
+        # 如果已经设置了路径，直接返回
+        if hasattr(pytesseract, 'tesseract_cmd') and pytesseract.pytesseract.tesseract_cmd:
+            current_path = pytesseract.pytesseract.tesseract_cmd
+            if current_path != 'tesseract' and Path(current_path).exists():
+                logger.info(f"使用已配置的 Tesseract 路径: {current_path}")
+                return
+        
+        # 优先查找打包后的 Tesseract（PyInstaller）
+        if getattr(sys, 'frozen', False):
+            # 打包后的 EXE 环境
+            base_path = Path(sys.executable).parent
+            bundled_tesseract = base_path / 'tesseract' / 'tesseract.exe'
+            
+            if bundled_tesseract.exists():
+                pytesseract.pytesseract.tesseract_cmd = str(bundled_tesseract)
+                # 设置 tessdata 路径
+                os.environ['TESSDATA_PREFIX'] = str(base_path / 'tesseract' / 'tessdata')
+                logger.info(f"✓ 使用打包的 Tesseract: {bundled_tesseract}")
+                return
+        
+        # Windows 系统需要设置路径
+        if sys.platform == 'win32':
+            # 常见的 Tesseract 安装路径
+            possible_paths = [
+                r'C:\Program Files\Tesseract-OCR\tesseract.exe',
+                r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
+                r'C:\Tesseract-OCR\tesseract.exe',
+            ]
+            
+            # 从环境变量中查找
+            if 'TESSERACT_PATH' in os.environ:
+                possible_paths.insert(0, os.environ['TESSERACT_PATH'])
+            
+            # 尝试找到 Tesseract
+            for path in possible_paths:
+                if Path(path).exists():
+                    pytesseract.pytesseract.tesseract_cmd = path
+                    logger.info(f"✓ 找到 Tesseract: {path}")
+                    return
+            
+            # 如果都找不到，记录警告但继续（可能在PATH中）
+            logger.warning("未找到 Tesseract 安装路径，尝试使用系统 PATH")
+            logger.warning("如果 OCR 识别失败，请确保 Tesseract 已正确安装")
+            logger.warning("推荐安装路径: C:\\Program Files\\Tesseract-OCR")
+        else:
+            # macOS/Linux 通常在 PATH 中
+            logger.info("非 Windows 系统，使用系统 PATH 中的 tesseract")
     
     def _count_regions(self) -> int:
         """统计区域数量"""
